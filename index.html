@@ -1134,46 +1134,53 @@ function doSubmit(){
 function emergencySubmit(){
   if(alreadySubmitted||!S.run)return;
   alreadySubmitted=true;
-  S.run=false;
-  /* Sync latest essay content */
+  /* Sync latest essay content while S.run is still true */
   var ta1=$('essayTA'),ta2=$('essayTA2');
   if(ta1)S.essay=ta1.value||S.essay;
   if(ta2)S.essay2=ta2.value||S.essay2;
   snap();
 
-  /* Save to cookie+localStorage so it can be recovered or retried */
+  /* Save to cookie+localStorage */
   autosaveState();
 
-  /* Use sendBeacon for reliable submission even when page is closing */
-  if(S.url&&navigator.sendBeacon){
-    var rd=rdata();
-    rd.action='final';
-    try{
-      navigator.sendBeacon(S.url,JSON.stringify(rd));
-    }catch(e){}
+  /* Build payload while S.run is still true */
+  var rd=rdata();
+  rd.action='final';
+  var payload=JSON.stringify(rd);
+
+  /* Now stop the exam */
+  S.run=false;
+
+  if(!S.url)return;
+
+  /* Primary: fetch with keepalive (survives page close, same as doSubmit) */
+  try{
+    fetch(S.url,{method:'POST',mode:'no-cors',keepalive:true,
+      headers:{'Content-Type':'text/plain'},body:payload});
+  }catch(e){
+    /* Fallback: sendBeacon */
+    try{navigator.sendBeacon(S.url,payload)}catch(e2){}
   }
 }
 
 window.addEventListener('beforeunload',function(e){
-  if(!alreadySubmitted&&S.run){
+  if(S.run&&!alreadySubmitted){
     emergencySubmit();
-  }
-  if(S.run||isSubmitting){
     e.preventDefault();
-    e.returnValue='Your exam is still in progress! Are you sure you want to leave?';
+    e.returnValue='Your exam is still in progress!';
     return e.returnValue;
   }
 });
 
 /* pagehide fires more reliably on mobile Safari */
 window.addEventListener('pagehide',function(e){
-  emergencySubmit();
+  if(S.run)emergencySubmit();
 });
 
 /* Also handle mobile "freeze" events where available */
 if('onfreeze' in document){
   document.addEventListener('freeze',function(){
-    emergencySubmit();
+    if(S.run)emergencySubmit();
   });
 }
 
