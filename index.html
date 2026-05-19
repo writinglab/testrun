@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Storage Test</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,sans-serif;padding:20px;background:#f5f5f5;color:#1a1a2e}
+h1{font-size:20px;margin-bottom:16px;text-align:center}
+.card{background:#fff;border-radius:12px;padding:16px;margin-bottom:12px;box-shadow:0 1px 4px rgba(0,0,0,.08)}
+.card h2{font-size:15px;font-weight:700;margin-bottom:8px}
+.status{padding:8px 12px;border-radius:8px;font-size:13px;font-weight:600;margin-bottom:6px}
+.ok{background:#d4edda;color:#2d6a4f}
+.fail{background:#fee2e5;color:#e63946}
+.wait{background:#e8f0fe;color:#1b2a4a}
+.btn{display:block;width:100%;padding:14px;border:none;border-radius:10px;font-size:15px;font-weight:700;cursor:pointer;margin-bottom:10px;font-family:inherit}
+.btn-blue{background:#1B2A4A;color:#fff}
+.btn-green{background:#2d6a4f;color:#fff}
+.btn-red{background:#e63946;color:#fff}
+.info{font-size:12px;color:#888;margin-top:4px;line-height:1.5}
+#log{background:#1a1a2e;color:#a0f0a0;border-radius:10px;padding:12px;font-family:monospace;font-size:11px;line-height:1.6;max-height:300px;overflow-y:auto;margin-top:12px;white-space:pre-wrap}
+</style>
+</head>
+<body>
+
+<h1>🧪 Storage Test</h1>
+<p style="text-align:center;font-size:13px;color:#888;margin-bottom:16px">Mở trang này trên điện thoại học sinh → bấm "Write Test Data" → đóng tab → mở lại → bấm "Read Test Data"</p>
+
+<div class="card">
+  <h2>Step 1: Write</h2>
+  <button class="btn btn-blue" onclick="writeAll()">💾 Write Test Data</button>
+  <div id="writeResult"></div>
+</div>
+
+<div class="card">
+  <h2>Step 2: Close & Reopen tab, then:</h2>
+  <button class="btn btn-green" onclick="readAll()">📖 Read Test Data</button>
+  <div id="readResult"></div>
+</div>
+
+<div class="card">
+  <h2>Cleanup</h2>
+  <button class="btn btn-red" onclick="clearAll()">🗑 Clear All Data</button>
+</div>
+
+<div id="log"></div>
+
+<script>
+var TEST_KEY = 'ielts_storage_test';
+var TEST_DATA = JSON.stringify({
+  name: 'Test Student',
+  essay: 'This is a test essay to check if storage persists after closing the browser tab on mobile devices.',
+  time: new Date().toISOString(),
+  words: 42
+});
+
+function log(msg) {
+  var el = document.getElementById('log');
+  el.textContent += new Date().toLocaleTimeString() + ' | ' + msg + '\n';
+  el.scrollTop = el.scrollHeight;
+}
+
+function statusHTML(name, ok, detail) {
+  return '<div class="status ' + (ok ? 'ok' : 'fail') + '">' 
+    + (ok ? '✅' : '❌') + ' ' + name 
+    + (detail ? ' — ' + detail : '')
+    + '</div>';
+}
+
+// ═══ WRITE ═══
+function writeAll() {
+  var results = '';
+  
+  // 1. localStorage
+  try {
+    localStorage.setItem(TEST_KEY, TEST_DATA);
+    var check = localStorage.getItem(TEST_KEY);
+    if (check === TEST_DATA) {
+      results += statusHTML('localStorage', true, 'Written OK');
+      log('localStorage: WRITE OK');
+    } else {
+      results += statusHTML('localStorage', false, 'Write succeeded but read-back failed');
+      log('localStorage: WRITE but read-back FAIL');
+    }
+  } catch(e) {
+    results += statusHTML('localStorage', false, e.message);
+    log('localStorage: WRITE FAIL — ' + e.message);
+  }
+  
+  // 2. sessionStorage
+  try {
+    sessionStorage.setItem(TEST_KEY, TEST_DATA);
+    var check = sessionStorage.getItem(TEST_KEY);
+    if (check === TEST_DATA) {
+      results += statusHTML('sessionStorage', true, 'Written OK (will NOT survive tab close)');
+      log('sessionStorage: WRITE OK');
+    } else {
+      results += statusHTML('sessionStorage', false, 'Write succeeded but read-back failed');
+      log('sessionStorage: WRITE but read-back FAIL');
+    }
+  } catch(e) {
+    results += statusHTML('sessionStorage', false, e.message);
+    log('sessionStorage: WRITE FAIL — ' + e.message);
+  }
+  
+  // 3. IndexedDB
+  writeIndexedDB().then(function(ok) {
+    if (ok) {
+      results += statusHTML('IndexedDB', true, 'Written OK');
+      log('IndexedDB: WRITE OK');
+    } else {
+      results += statusHTML('IndexedDB', false, 'Write failed');
+      log('IndexedDB: WRITE FAIL');
+    }
+    
+    // 4. Cookie
+    try {
+      document.cookie = TEST_KEY + '=' + encodeURIComponent(TEST_DATA.substring(0, 200)) 
+        + '; max-age=86400; path=/; SameSite=Lax';
+      var cookies = document.cookie;
+      if (cookies.indexOf(TEST_KEY) >= 0) {
+        results += statusHTML('Cookie', true, 'Written OK (truncated to 200 chars)');
+        log('Cookie: WRITE OK');
+      } else {
+        results += statusHTML('Cookie', false, 'Cookie not found after setting');
+        log('Cookie: WRITE FAIL — not found after set');
+      }
+    } catch(e) {
+      results += statusHTML('Cookie', false, e.message);
+      log('Cookie: WRITE FAIL — ' + e.message);
+    }
+    
+    // 5. Cache API
+    writeCacheAPI().then(function(ok) {
+      if (ok) {
+        results += statusHTML('Cache API', true, 'Written OK');
+        log('Cache API: WRITE OK');
+      } else {
+        results += statusHTML('Cache API', false, 'Not available or write failed');
+        log('Cache API: WRITE FAIL');
+      }
+      
+      results += '<div class="info">Now close this tab completely, reopen it, and tap "Read Test Data"</div>';
+      document.getElementById('writeResult').innerHTML = results;
+    });
+  });
+}
+
+// ═══ READ ═══
+function readAll() {
+  var results = '';
+  
+  // 1. localStorage
+  try {
+    var val = localStorage.getItem(TEST_KEY);
+    if (val === TEST_DATA) {
+      results += statusHTML('localStorage', true, 'Data survived! ✓');
+      log('localStorage: READ OK — data survived');
+    } else if (val) {
+      results += statusHTML('localStorage', false, 'Data changed or corrupted');
+      log('localStorage: READ PARTIAL — data corrupted');
+    } else {
+      results += statusHTML('localStorage', false, 'Empty — data lost');
+      log('localStorage: READ FAIL — empty');
+    }
+  } catch(e) {
+    results += statusHTML('localStorage', false, e.message);
+    log('localStorage: READ FAIL — ' + e.message);
+  }
+  
+  // 2. sessionStorage
+  try {
+    var val = sessionStorage.getItem(TEST_KEY);
+    if (val === TEST_DATA) {
+      results += statusHTML('sessionStorage', true, 'Data survived! ✓');
+      log('sessionStorage: READ OK');
+    } else {
+      results += statusHTML('sessionStorage', false, 'Empty (expected if tab was closed)');
+      log('sessionStorage: READ FAIL — empty (expected)');
+    }
+  } catch(e) {
+    results += statusHTML('sessionStorage', false, e.message);
+    log('sessionStorage: READ FAIL — ' + e.message);
+  }
+  
+  // 3. IndexedDB
+  readIndexedDB().then(function(val) {
+    if (val === TEST_DATA) {
+      results += statusHTML('IndexedDB', true, 'Data survived! ✓');
+      log('IndexedDB: READ OK — data survived');
+    } else if (val) {
+      results += statusHTML('IndexedDB', false, 'Data changed or corrupted');
+      log('IndexedDB: READ PARTIAL');
+    } else {
+      results += statusHTML('IndexedDB', false, 'Empty — data lost');
+      log('IndexedDB: READ FAIL — empty');
+    }
+    
+    // 4. Cookie
+    try {
+      var cookies = document.cookie;
+      if (cookies.indexOf(TEST_KEY) >= 0) {
+        results += statusHTML('Cookie', true, 'Data survived! ✓');
+        log('Cookie: READ OK — data survived');
+      } else {
+        results += statusHTML('Cookie', false, 'Empty — data lost');
+        log('Cookie: READ FAIL — empty');
+      }
+    } catch(e) {
+      results += statusHTML('Cookie', false, e.message);
+      log('Cookie: READ FAIL — ' + e.message);
+    }
+    
+    // 5. Cache API
+    readCacheAPI().then(function(val) {
+      if (val === TEST_DATA) {
+        results += statusHTML('Cache API', true, 'Data survived! ✓');
+        log('Cache API: READ OK — data survived');
+      } else {
+        results += statusHTML('Cache API', false, 'Empty — data lost');
+        log('Cache API: READ FAIL — empty');
+      }
+      
+      document.getElementById('readResult').innerHTML = results;
+    });
+  });
+}
+
+// ═══ CLEAR ═══
+function clearAll() {
+  try { localStorage.removeItem(TEST_KEY) } catch(e) {}
+  try { sessionStorage.removeItem(TEST_KEY) } catch(e) {}
+  try {
+    var req = indexedDB.deleteDatabase('ielts_test_db');
+    req.onsuccess = function() { log('IndexedDB: cleared') };
+  } catch(e) {}
+  try {
+    document.cookie = TEST_KEY + '=; max-age=0; path=/';
+  } catch(e) {}
+  try {
+    caches.delete('ielts_test_cache').then(function() { log('Cache API: cleared') });
+  } catch(e) {}
+  log('All storage cleared');
+  document.getElementById('writeResult').innerHTML = '';
+  document.getElementById('readResult').innerHTML = '';
+}
+
+// ═══ IndexedDB helpers ═══
+function writeIndexedDB() {
+  return new Promise(function(resolve) {
+    try {
+      var req = indexedDB.open('ielts_test_db', 1);
+      req.onupgradeneeded = function(e) {
+        var db = e.target.result;
+        if (!db.objectStoreNames.contains('data')) {
+          db.createObjectStore('data');
+        }
+      };
+      req.onsuccess = function(e) {
+        try {
+          var db = e.target.result;
+          var tx = db.transaction('data', 'readwrite');
+          tx.objectStore('data').put(TEST_DATA, TEST_KEY);
+          tx.oncomplete = function() { resolve(true) };
+          tx.onerror = function() { resolve(false) };
+        } catch(err) { resolve(false) }
+      };
+      req.onerror = function() { resolve(false) };
+    } catch(e) { resolve(false) }
+  });
+}
+
+function readIndexedDB() {
+  return new Promise(function(resolve) {
+    try {
+      var req = indexedDB.open('ielts_test_db', 1);
+      req.onupgradeneeded = function(e) {
+        var db = e.target.result;
+        if (!db.objectStoreNames.contains('data')) {
+          db.createObjectStore('data');
+        }
+      };
+      req.onsuccess = function(e) {
+        try {
+          var db = e.target.result;
+          var tx = db.transaction('data', 'readonly');
+          var getReq = tx.objectStore('data').get(TEST_KEY);
+          getReq.onsuccess = function() { resolve(getReq.result || null) };
+          getReq.onerror = function() { resolve(null) };
+        } catch(err) { resolve(null) }
+      };
+      req.onerror = function() { resolve(null) };
+    } catch(e) { resolve(null) }
+  });
+}
+
+// ═══ Cache API helpers ═══
+function writeCacheAPI() {
+  return new Promise(function(resolve) {
+    try {
+      if (!('caches' in window)) { resolve(false); return }
+      caches.open('ielts_test_cache').then(function(cache) {
+        var resp = new Response(TEST_DATA);
+        cache.put('/ielts_test_data', resp).then(function() {
+          resolve(true);
+        }).catch(function() { resolve(false) });
+      }).catch(function() { resolve(false) });
+    } catch(e) { resolve(false) }
+  });
+}
+
+function readCacheAPI() {
+  return new Promise(function(resolve) {
+    try {
+      if (!('caches' in window)) { resolve(null); return }
+      caches.open('ielts_test_cache').then(function(cache) {
+        cache.match('/ielts_test_data').then(function(resp) {
+          if (resp) {
+            resp.text().then(function(t) { resolve(t) });
+          } else { resolve(null) }
+        }).catch(function() { resolve(null) });
+      }).catch(function() { resolve(null) });
+    } catch(e) { resolve(null) }
+  });
+}
+</script>
+</body>
+</html>
