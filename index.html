@@ -1102,10 +1102,12 @@ function updVio(){if(vioNum>0){D('vBdg',1);$('vCntH').textContent=vioNum}}
 
 /* ═══ SUBMIT ═══ */
 var isSubmitting=false; /* prevent double submit */
+var alreadySubmitted=false; /* prevent duplicate Drive files */
 
 function doSubmit(){
   if(!S.run||isSubmitting)return;
   isSubmitting=true;
+  alreadySubmitted=true;
   /* Always save current active tab first */
   if(activeTab===1)S.essay=$('essayTA').value;
   if(activeTab===2)S.essay2=$('essayTA2').value;
@@ -1130,7 +1132,9 @@ function doSubmit(){
    Submit data when browser/tab is closing
    ═══════════════════════════════════════════ */
 function emergencySubmit(){
-  if(!S.run)return;
+  if(alreadySubmitted||!S.run)return;
+  alreadySubmitted=true;
+  S.run=false;
   /* Sync latest essay content */
   var ta1=$('essayTA'),ta2=$('essayTA2');
   if(ta1)S.essay=ta1.value||S.essay;
@@ -1142,22 +1146,19 @@ function emergencySubmit(){
 
   /* Use sendBeacon for reliable submission even when page is closing */
   if(S.url&&navigator.sendBeacon){
-    var wasRunning=S.run;
-    S.run=false;
     var rd=rdata();
     rd.action='final';
-    var payload=JSON.stringify(rd);
-    S.run=wasRunning;
     try{
-      navigator.sendBeacon(S.url,payload);
+      navigator.sendBeacon(S.url,JSON.stringify(rd));
     }catch(e){}
   }
 }
 
 window.addEventListener('beforeunload',function(e){
-  if(S.run){
+  if(!alreadySubmitted&&S.run){
     emergencySubmit();
-    /* Show browser's "are you sure?" dialog */
+  }
+  if(S.run||isSubmitting){
     e.preventDefault();
     e.returnValue='Your exam is still in progress! Are you sure you want to leave?';
     return e.returnValue;
@@ -1166,15 +1167,13 @@ window.addEventListener('beforeunload',function(e){
 
 /* pagehide fires more reliably on mobile Safari */
 window.addEventListener('pagehide',function(e){
-  if(S.run){
-    emergencySubmit();
-  }
+  emergencySubmit();
 });
 
 /* Also handle mobile "freeze" events where available */
 if('onfreeze' in document){
   document.addEventListener('freeze',function(){
-    if(S.run)emergencySubmit();
+    emergencySubmit();
   });
 }
 
