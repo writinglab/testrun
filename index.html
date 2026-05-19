@@ -3,327 +3,1521 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Storage Test</title>
+<title>IELTS Writing Lab</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
-*{box-sizing:border-box;margin:0;padding:0}
-body{font-family:-apple-system,sans-serif;padding:20px;background:#f5f5f5;color:#1a1a2e}
-h1{font-size:20px;margin-bottom:16px;text-align:center}
-.card{background:#fff;border-radius:12px;padding:16px;margin-bottom:12px;box-shadow:0 1px 4px rgba(0,0,0,.08)}
-.card h2{font-size:15px;font-weight:700;margin-bottom:8px}
-.status{padding:8px 12px;border-radius:8px;font-size:13px;font-weight:600;margin-bottom:6px}
-.ok{background:#d4edda;color:#2d6a4f}
-.fail{background:#fee2e5;color:#e63946}
-.wait{background:#e8f0fe;color:#1b2a4a}
-.btn{display:block;width:100%;padding:14px;border:none;border-radius:10px;font-size:15px;font-weight:700;cursor:pointer;margin-bottom:10px;font-family:inherit}
-.btn-blue{background:#1B2A4A;color:#fff}
-.btn-green{background:#2d6a4f;color:#fff}
-.btn-red{background:#e63946;color:#fff}
-.info{font-size:12px;color:#888;margin-top:4px;line-height:1.5}
-#log{background:#1a1a2e;color:#a0f0a0;border-radius:10px;padding:12px;font-family:monospace;font-size:11px;line-height:1.6;max-height:300px;overflow-y:auto;margin-top:12px;white-space:pre-wrap}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'DM Sans','Segoe UI',sans-serif;background:#F7F8FA;color:#1A1A2E;min-height:100vh}
+::selection{background:#1B2A4A;color:#fff}
+input:focus,textarea:focus{border-color:#1B2A4A!important;outline:none;box-shadow:0 0 0 3px rgba(27,42,74,0.08)}
+
+/* ── HEADER ── */
+.hdr{background:linear-gradient(135deg,#1B2A4A,#16213E);color:#fff;padding:10px 24px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;box-shadow:0 2px 12px rgba(0,0,0,.15)}
+.hdr-logo{display:flex;align-items:center;gap:12px}
+.hdr-icon{width:32px;height:32px;background:linear-gradient(135deg,#E63946,#F4A261);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:14px;color:#fff}
+.hdr-t{font-size:16px;font-weight:700;letter-spacing:-.3px}
+.hdr-s{font-size:11px;opacity:.6;margin-top:1px}
+.hdr-r{display:flex;align-items:center;gap:14px}
+
+/* ── TIMER ── */
+.tbar{height:4px;background:#E8ECF0}
+.tfill{height:100%;transition:width 1s linear,background .5s}
+.td{background:rgba(255,255,255,.1);border-radius:8px;padding:6px 14px;display:flex;align-items:center;gap:8px}
+.tt{font-family:'SF Mono','Fira Code','Consolas',monospace;font-size:18px;font-weight:700}
+
+/* ── GENERAL ── */
+.wrap{max-width:880px;margin:0 auto;padding:24px 20px}
+.card{background:#fff;border-radius:14px;padding:28px;box-shadow:0 1px 8px rgba(0,0,0,.06);margin-bottom:20px;border:1px solid #E8ECF0}
+.card-l{border-left:4px solid #1B2A4A}
+.card-r{border-left:4px solid #E63946}
+.stit{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:1.2px;color:#8B95A5;margin-bottom:16px}
+.bg{display:inline-flex;align-items:center;gap:5px;padding:4px 10px;border-radius:6px;font-size:12px;font-weight:700}
+.bg-b{background:#E8F0FE;color:#1B2A4A}.bg-g{background:#D4EDDA;color:#2D6A4F}.bg-r{background:#FEE2E5;color:#E63946}
+.bg-v{background:rgba(230,57,70,.2);color:#FF8A8A}
+
+/* ── INPUTS ── */
+input[type=text],input[type=number],input[type=url]{padding:12px 16px;border:2px solid #E0E4EA;border-radius:10px;font-size:15px;font-family:inherit;width:100%;transition:border-color .2s}
+textarea{width:100%;border:2px solid #E0E4EA;border-radius:10px;padding:14px 16px;font-size:14px;font-family:inherit;resize:vertical;line-height:1.8;transition:border-color .2s}
+
+/* ── BUTTONS ── */
+.btn{display:inline-flex;align-items:center;gap:8px;border:none;border-radius:10px;font-family:inherit;font-weight:600;cursor:pointer;transition:all .2s}
+.btn-p{padding:13px 28px;font-size:15px;color:#fff;background:linear-gradient(135deg,#1B2A4A,#16213E)}
+.btn-p:hover{transform:translateY(-1px);box-shadow:0 4px 12px rgba(27,42,74,.3)}
+.btn-s{padding:10px 18px;font-size:13px;color:#4A5568;background:#F0F2F5;border:1px solid #D0D5DD}
+.btn-s:hover{background:#E5E7EB}
+.btn-d{padding:10px 20px;font-size:14px;font-weight:700;color:#fff;background:linear-gradient(135deg,#E63946,#DC2626)}
+.btn-ok{padding:14px 32px;font-size:16px;font-weight:700;color:#fff;background:linear-gradient(135deg,#059669,#10B981)}
+.btn-ok:hover{transform:translateY(-1px);box-shadow:0 4px 16px rgba(16,185,129,.3)}
+.btn:disabled{opacity:.35;cursor:not-allowed;transform:none!important;box-shadow:none!important}
+
+/* ── TASK BUTTONS ── */
+.tg{display:flex;gap:12px}
+.tb{flex:1;padding:16px;border:2px solid #E0E4EA;border-radius:12px;background:#fff;cursor:pointer;text-align:center;transition:all .25s;font-family:inherit;color:#4A5568}
+.tb:hover{border-color:#B0B8C4}
+.tb.on{border-color:#1B2A4A;background:#1B2A4A;color:#fff}
+.tb b{display:block;font-size:17px;font-weight:700}
+.tb span{display:block;font-size:12px;opacity:.7;margin-top:4px}
+
+/* ── SETUP ENTRY ── */
+.entry{display:flex;align-items:center;justify-content:center;min-height:calc(100vh - 58px);padding:24px}
+.ecard{background:#fff;border-radius:20px;padding:40px;box-shadow:0 4px 24px rgba(0,0,0,.08);max-width:580px;width:100%;border:1px solid #E8ECF0}
+.ecard h2{font-size:22px;font-weight:800;color:#1B2A4A;margin-bottom:4px;text-align:center}
+.ecard .sub{font-size:13px;color:#8B95A5;margin-bottom:20px;text-align:center}
+.ebox{background:#F0F4F8;border-radius:10px;padding:14px 18px;font-size:13px;color:#4A5568;line-height:1.7;margin-bottom:20px}
+.ebox b{color:#1B2A4A}
+.uz{border:2px dashed #D0D5DD;border-radius:10px;padding:16px;text-align:center;cursor:pointer;transition:all .2s;color:#8B95A5;font-size:13px}
+.uz:hover{border-color:#1B2A4A;color:#4A5568;background:#F8FAFB}
+.uz.ok{border-color:#2D6A4F;border-style:solid;background:#F0FFF4;color:#2D6A4F}
+.ip{border-radius:10px;overflow:hidden;border:1px solid #E0E4EA;margin-top:10px}
+.ip img{width:100%;max-height:280px;object-fit:contain;background:#F8FAFB}
+
+/* ══════════════════════════════════════════
+   EXAM SPLIT SCREEN (IELTS Computer Style)
+   ══════════════════════════════════════════ */
+.exam-split{display:flex;height:calc(100vh - 54px);overflow:hidden}
+.exam-left{width:50%;border-right:3px solid #1B2A4A;display:flex;flex-direction:column;background:#fff}
+.exam-right{width:50%;display:flex;flex-direction:column;background:#FCFCFD}
+
+/* Resizer handle */
+.exam-divider{width:6px;background:#1B2A4A;cursor:col-resize;flex-shrink:0;position:relative;transition:background .2s}
+.exam-divider:hover{background:#2D4A7A}
+.exam-divider::after{content:'⋮';position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);color:rgba(255,255,255,.6);font-size:14px;letter-spacing:2px}
+
+/* Left panel - Prompt */
+.ex-panel-hdr{padding:10px 20px;background:#F0F4F8;border-bottom:1px solid #E0E4EA;display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
+.ex-panel-title{font-size:13px;font-weight:700;color:#1B2A4A;text-transform:uppercase;letter-spacing:.8px}
+.ex-prompt-area{flex:1;overflow-y:auto;padding:20px}
+.ex-prompt-text{font-size:14px;line-height:1.9;color:#2D3748;white-space:pre-wrap}
+.ex-prompt-img{margin-bottom:16px;border-radius:8px;overflow:hidden;border:1px solid #E0E4EA;position:relative}
+.ex-prompt-img img{width:100%;object-fit:contain;background:#F8FAFB;cursor:zoom-in;transition:transform .2s}
+
+/* Zoom controls */
+.zoom-bar{display:flex;align-items:center;gap:8px;margin-bottom:12px}
+.zoom-btn{width:32px;height:32px;border-radius:8px;border:1px solid #D0D5DD;background:#fff;cursor:pointer;font-size:16px;font-weight:700;color:#4A5568;display:flex;align-items:center;justify-content:center;transition:all .15s;font-family:inherit}
+.zoom-btn:hover{background:#F0F2F5;border-color:#1B2A4A;color:#1B2A4A}
+.zoom-label{font-size:12px;color:#8B95A5;font-weight:600;min-width:40px;text-align:center}
+
+/* Fullscreen zoom modal */
+.zoom-modal{position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:9998;display:flex;align-items:center;justify-content:center;cursor:zoom-out;animation:fi .15s}
+.zoom-modal img{max-width:95vw;max-height:95vh;object-fit:contain;border-radius:8px;box-shadow:0 8px 40px rgba(0,0,0,.4)}
+.zoom-close{position:fixed;top:16px;right:16px;width:40px;height:40px;border-radius:50%;background:rgba(255,255,255,.15);border:none;color:#fff;font-size:20px;cursor:pointer;display:flex;align-items:center;justify-content:center;z-index:9999}
+.zoom-close:hover{background:rgba(255,255,255,.3)}
+
+/* Right panel - Essay */
+.ex-essay-area{flex:1;display:flex;flex-direction:column;padding:0}
+.ex-essay-area textarea{flex:1;width:100%;border:none;border-radius:0;padding:20px 24px;font-size:15px;font-family:'Georgia','Times New Roman',serif;line-height:2;background:transparent;resize:none;outline:none}
+.ex-essay-area textarea[style*="display:block"]{flex:1}
+.ex-bottom-bar{padding:8px 20px;background:#F0F4F8;border-top:1px solid #E0E4EA;display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
+
+/* ── WARNING ── */
+.wo{position:fixed;inset:0;background:rgba(230,57,70,.96);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:9999;color:#fff;animation:fi .15s}
+.wc{background:rgba(255,255,255,.15);border-radius:10px;padding:12px 24px;font-size:18px;font-weight:700}
+@keyframes fi{from{opacity:0}to{opacity:1}}
+
+/* ── AUTOSAVE INDICATOR ── */
+.autosave-dot{width:8px;height:8px;border-radius:50%;display:inline-block;margin-right:6px;vertical-align:middle}
+.autosave-dot.saved{background:#2D6A4F}
+.autosave-dot.saving{background:#F4A261;animation:pulse 1s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+
+/* ── RECOVERY BANNER ── */
+.recovery-banner{background:linear-gradient(135deg,#FFFBEB,#FEF3C7);border:1px solid #F59E0B;border-radius:12px;padding:20px;margin-bottom:20px;text-align:center}
+.recovery-banner h3{color:#92400E;font-size:16px;margin-bottom:8px}
+.recovery-banner p{color:#78350F;font-size:13px;margin-bottom:14px;line-height:1.6}
+.recovery-banner .btn-group{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
+
+/* ── REVIEW ── */
+.pbox{background:#F8FAFB;border:1px solid #E0E4EA;border-radius:10px;padding:20px;font-size:14px;line-height:1.8;white-space:pre-wrap;color:#2D3748;max-height:300px;overflow-y:auto}
+.ebox-essay{font-family:'Georgia',serif;line-height:2;min-height:200px;white-space:pre-wrap}
+.sg{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.st{text-align:center;padding:12px}
+.sv{font-size:26px;font-weight:800;line-height:1}
+.sl{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.8px;color:#8B95A5;margin-top:6px}
+.vi{display:flex;align-items:center;gap:8px;padding:8px 12px;border-radius:6px;font-size:13px;font-weight:500;margin-bottom:4px;font-family:'SF Mono','Fira Code','Consolas',monospace}
+.vi-l{background:#FFF5F5;color:#E63946}.vi-r{background:#F0FFF4;color:#2D6A4F}.vi-p{background:#FFFBEB;color:#B45309}
+.htl{position:relative;padding-left:24px}
+.htl::before{content:'';position:absolute;left:8px;top:0;bottom:0;width:2px;background:#E0E4EA}
+.hi{position:relative;margin-bottom:10px}
+.hd{position:absolute;left:-20px;top:6px;width:10px;height:10px;border-radius:50%;border:2px solid #fff;box-shadow:0 0 0 2px #1B2A4A}
+.hc{background:#F8FAFB;border-radius:8px;padding:10px 14px;font-size:13px;border:1px solid #E8ECF0}
+.hb{height:6px;background:#E8ECF0;border-radius:3px;margin-top:6px;overflow:hidden}
+.hbf{height:100%;border-radius:3px;background:linear-gradient(90deg,#1B2A4A,#2D6A4F);transition:width .3s}
+
+.ss{margin-top:16px;padding:14px 20px;border-radius:10px;text-align:center;font-weight:600;font-size:14px}
+.ss-ok{background:#D4EDDA;color:#2D6A4F;border:1px solid #A3D9A5}
+.ss-fail{background:#FEE2E5;color:#E63946;border:1px solid #FECDD3}
+.ss-load{background:#E8F0FE;color:#1B2A4A;border:1px solid #B8D0F0}
+
+.fc{display:flex;align-items:center;justify-content:center}
+.fb{display:flex;align-items:center;justify-content:space-between}
+.fw{flex-wrap:wrap}
+.g12{gap:12px}
+.mt8{margin-top:8px}.mt12{margin-top:12px}.mb12{margin-bottom:12px}.mb14{margin-bottom:14px}
+.hidden{display:none!important}
+
+/* ── DEVICE SELECT (Phase 0) ── */
+.p0-wrap{display:flex;align-items:center;justify-content:center;min-height:calc(100vh - 58px);padding:24px}
+.p0-card{background:#fff;border-radius:20px;padding:40px;box-shadow:0 4px 24px rgba(0,0,0,.08);max-width:480px;width:100%;border:1px solid #E8ECF0;text-align:center}
+.p0-card h2{font-size:22px;font-weight:800;color:#1B2A4A;margin-bottom:6px}
+.p0-card .sub{font-size:13px;color:#8B95A5;margin-bottom:28px}
+.dv-group{display:flex;gap:16px}
+.dv-btn{flex:1;padding:28px 16px;border:2px solid #E0E4EA;border-radius:14px;background:#fff;cursor:pointer;text-align:center;transition:all .25s;font-family:inherit;color:#4A5568}
+.dv-btn:hover{border-color:#1B2A4A;background:#F8FAFB;transform:translateY(-2px);box-shadow:0 4px 16px rgba(27,42,74,.1)}
+.dv-btn:active{transform:translateY(0)}
+.dv-icon{font-size:36px;margin-bottom:10px}
+.dv-btn b{display:block;font-size:16px;font-weight:700;color:#1B2A4A}
+.dv-btn span{display:block;font-size:11px;opacity:.6;margin-top:4px;line-height:1.4}
+
+/* ── MOBILE EXAM MODE ── */
+.mobile-mode .exam-left{display:none!important}
+.mobile-mode .exam-divider{display:none!important}
+.mobile-mode .exam-right{width:100%!important;min-height:calc(100vh - 58px)}
+.mobile-mode .exam-split{flex-direction:row!important;height:calc(100vh - 58px)!important;overflow:hidden!important}
+.mobile-mode .ex-essay-area textarea{font-size:16px}
+
+@media(max-width:800px){
+  .exam-split{flex-direction:column;height:auto}
+  .exam-left,.exam-right{width:100%}
+  .exam-left{max-height:40vh;border-right:none;border-bottom:3px solid #1B2A4A}
+  .exam-right{min-height:50vh}
+  .exam-divider{display:none}
+  .sg{grid-template-columns:repeat(2,1fr)}
+  .tg{flex-direction:column}
+  .wrap{padding:16px 12px}
+  .card{padding:20px}
+  .ecard{padding:24px}
+}
+
+/* ── TABS (Full Test) ── */
+.extabs{display:none;gap:0;flex-shrink:0;align-items:center}
+.extabs.on{display:flex}
+.extab{padding:10px 20px;font-size:13px;font-weight:700;cursor:pointer;border:none;border-bottom:3px solid transparent;color:#8B95A5;transition:all .2s;font-family:inherit;background:none}
+.extab.on{color:#1B2A4A;border-bottom-color:#1B2A4A}
+.extab:hover{color:#1B2A4A}
+.ftc{display:none}.ftc.on{display:block}
+.fta{display:none}.fta.on{display:flex}
 </style>
 </head>
 <body>
 
-<h1>🧪 Storage Test</h1>
-<p style="text-align:center;font-size:13px;color:#888;margin-bottom:16px">Mở trang này trên điện thoại học sinh → bấm "Write Test Data" → đóng tab → mở lại → bấm "Read Test Data"</p>
-
-<div class="card">
-  <h2>Step 1: Write</h2>
-  <button class="btn btn-blue" onclick="writeAll()">💾 Write Test Data</button>
-  <div id="writeResult"></div>
+<!-- WARNING -->
+<div id="warnOL" class="wo hidden" onclick="D('warnOL',0)">
+  <div style="font-size:64px;margin-bottom:16px">⚠️</div>
+  <div style="font-size:28px;font-weight:800;margin-bottom:8px">WARNING</div>
+  <div style="font-size:16px;opacity:.9;margin-bottom:24px;text-align:center;max-width:400px">
+    You just left the exam page!<br>This has been recorded.
+  </div>
+  <div class="wc">Violation #<span id="warnN">0</span></div>
+  <div style="margin-top:24px;font-size:14px;opacity:.7">Click anywhere to return</div>
 </div>
 
-<div class="card">
-  <h2>Step 2: Close & Reopen tab, then:</h2>
-  <button class="btn btn-green" onclick="readAll()">📖 Read Test Data</button>
-  <div id="readResult"></div>
+<!-- ZOOM MODAL -->
+<div id="zoomModal" class="zoom-modal hidden" onclick="closeZoom()">
+  <button class="zoom-close" onclick="closeZoom()">✕</button>
+  <img id="zoomImg" src="" alt="Zoomed image">
 </div>
 
-<div class="card">
-  <h2>Cleanup</h2>
-  <button class="btn btn-red" onclick="clearAll()">🗑 Clear All Data</button>
+<!-- ═══ PHASE 0: DEVICE SELECT ═══ -->
+<div id="P0">
+  <div class="hdr">
+    <div class="hdr-logo">
+      <div class="hdr-icon">✎</div>
+      <div><div class="hdr-t">IELTS Writing Lab</div><div class="hdr-s">Exam Simulation</div></div>
+    </div>
+  </div>
+  <div class="p0-wrap">
+    <div class="p0-card">
+      <h2>Welcome!</h2>
+      <div class="sub">Which device are you using?</div>
+      <!-- Recovery banner (shown if saved session found) -->
+      <div id="recoveryBanner" class="recovery-banner hidden">
+        <h3>📝 Unfinished exam found!</h3>
+        <p id="recoveryInfo">You have a saved session. Would you like to resume?</p>
+        <div class="btn-group">
+          <button class="btn btn-ok" onclick="recoverSession()" style="padding:10px 24px;font-size:14px">▶ Resume Exam</button>
+          <button class="btn btn-s" onclick="discardRecovery()">✕ Discard & Start New</button>
+        </div>
+      </div>
+      <div class="dv-group" id="deviceGroup">
+        <button class="dv-btn" onclick="pickDevice('pc')">
+          <div class="dv-icon">💻</div>
+          <b>PC / Laptop</b>
+          <span>Split-screen with prompt on the left</span>
+        </button>
+        <button class="dv-btn" onclick="pickDevice('mobile')">
+          <div class="dv-icon">📱</div>
+          <b>Mobile Phone</b>
+          <span>Full-screen writing area only</span>
+        </button>
+      </div>
+    </div>
+  </div>
 </div>
 
-<div id="log"></div>
+<!-- ═══ PHASE 1: SETUP ═══ -->
+<div id="P1" class="hidden">
+  <div class="hdr">
+    <div class="hdr-logo">
+      <div class="hdr-icon">✎</div>
+      <div><div class="hdr-t">IELTS Writing Lab</div><div class="hdr-s">Exam Simulation</div></div>
+    </div>
+  </div>
+  <div class="entry">
+    <div class="ecard">
+      <h2>IELTS Writing Practice</h2>
+      <div class="sub">Task 1, Task 2, or Full Test</div>
+      <div class="ebox">
+        <b>⚠ Before you start:</b><br>
+        • Switching tabs or opening other pages will be recorded<br>
+        • The exam auto-submits when time runs out<br>
+        • Your essay is auto-saved every 10 seconds<br>
+        • Your report will be downloaded and submitted automatically when you finish
+      </div>
+      <div style="margin-bottom:16px">
+        <div class="stit">Class</div>
+        <select id="inClass" style="padding:12px 16px;border:2px solid #E0E4EA;border-radius:10px;font-size:15px;font-family:inherit;width:100%;cursor:pointer">
+          <option value="">-- Select your class --</option>
+          <option value="2K9-NEW">2K9-NEW</option>
+          <option value="2K9-NEW2">2K9-NEW2</option>
+          <option value="2K9-NC2">2K9-NC2</option>
+          <option value="2K10-NC">2K10-NC</option>
+          <option value="2K10-NEW">2K10-NEW</option>
+        </select>
+      </div>
+      <div style="margin-bottom:16px">
+        <div class="stit">Full Name</div>
+        <input type="text" id="inName" placeholder="Enter your full name..." autofocus
+          spellcheck="false" autocomplete="off" autocorrect="off" autocapitalize="off">
+      </div>
+      <div style="margin-bottom:16px">
+        <div class="stit">Task Type</div>
+        <div class="tg">
+          <button class="tb on" data-t="task1" onclick="pickTask('task1')"><b>Task 1</b><span>20 min • ≥150 words</span></button>
+          <button class="tb" data-t="task2" onclick="pickTask('task2')"><b>Task 2</b><span>40 min • ≥250 words</span></button>
+          <button class="tb" data-t="full" onclick="pickTask('full')"><b>Full Test</b><span>60 min • T1 + T2</span></button>
+        </div>
+        <div style="display:flex;align-items:center;gap:10px;margin-top:12px">
+          <span style="font-size:13px;color:#8B95A5;white-space:nowrap">Custom time:</span>
+          <input type="number" id="inTime" min="1" max="120" placeholder="—" style="width:80px">
+          <span style="font-size:12px;color:#9CA3AF">minutes (leave blank = default)</span>
+        </div>
+      </div>
+      <!-- Single task prompt (Task 1 or Task 2) -->
+      <div id="singlePromptBox" style="margin-bottom:16px">
+        <div class="stit">Exam Prompt (paste from your teacher)</div>
+        <textarea id="inPrompt" rows="5" placeholder="Paste the exam prompt here..."
+          spellcheck="false" autocomplete="off" autocorrect="off" autocapitalize="off"></textarea>
+      </div>
+      <div id="singleImgBox" style="margin-bottom:16px">
+        <div class="uz" id="uzBox" onclick="document.getElementById('inImg').click()">🖼 Upload prompt image (Task 1) — optional</div>
+        <input type="file" id="inImg" accept="image/*" style="display:none">
+        <div id="ipBox" class="ip" style="display:none"></div>
+        <div id="rmImg" style="display:none;margin-top:6px">
+          <button class="btn btn-s" onclick="clearImg()" style="color:#E63946;font-size:12px">✕ Remove image</button>
+        </div>
+      </div>
+
+      <!-- Full Test: separate Task 1 + Task 2 -->
+      <div id="fullPromptBox" style="display:none">
+        <div style="margin-bottom:16px;padding:20px;background:#F8FAFB;border-radius:12px;border:1px solid #E0E4EA">
+          <div class="stit" style="color:#1B2A4A">📝 Task 1 Prompt</div>
+          <textarea id="inPromptT1" rows="4" placeholder="Paste Task 1 prompt here..."
+            spellcheck="false" autocomplete="off" autocorrect="off" autocapitalize="off"></textarea>
+          <div style="margin-top:10px">
+            <div class="uz" id="uzBoxT1" onclick="document.getElementById('inImgT1').click()">🖼 Upload Task 1 image — optional</div>
+            <input type="file" id="inImgT1" accept="image/*" style="display:none">
+            <div id="ipBoxT1" class="ip" style="display:none"></div>
+            <div id="rmImgT1" style="display:none;margin-top:6px">
+              <button class="btn btn-s" onclick="clearImgT1()" style="color:#E63946;font-size:12px">✕ Remove image</button>
+            </div>
+          </div>
+        </div>
+        <div style="margin-bottom:16px;padding:20px;background:#F8FAFB;border-radius:12px;border:1px solid #E0E4EA">
+          <div class="stit" style="color:#1B2A4A">📝 Task 2 Prompt</div>
+          <textarea id="inPromptT2" rows="4" placeholder="Paste Task 2 prompt here..."
+            spellcheck="false" autocomplete="off" autocorrect="off" autocapitalize="off"></textarea>
+        </div>
+      </div>
+      <button class="btn btn-p" id="goBtn" onclick="go()" disabled style="width:100%;justify-content:center;padding:14px;font-size:16px">
+        ▶ Start Exam
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ PHASE 2: EXAM (Split Screen) ═══ -->
+<div id="P2" class="hidden">
+  <div class="hdr">
+    <div class="hdr-logo">
+      <div class="hdr-icon">✎</div>
+      <div><div class="hdr-t">IELTS Writing Lab</div><div class="hdr-s" id="exSub">Task 1</div></div>
+    </div>
+    <div class="hdr-r">
+      <span id="autoSaveInd" style="font-size:11px;opacity:.7;display:flex;align-items:center"><span class="autosave-dot saved"></span>Saved</span>
+      <span id="vBdg" class="bg bg-v hidden">⚠ <span id="vCntH">0</span> violation(s)</span>
+      <div class="td"><span style="font-size:14px">⏱</span><span class="tt" id="clock">20:00</span></div>
+      <button class="btn btn-d" onclick="doSubmit()" style="padding:8px 18px;font-size:13px">Submit ■</button>
+    </div>
+  </div>
+  <div class="tbar"><div class="tfill" id="tFill" style="width:100%;background:#2D6A4F"></div></div>
+
+  <div class="exam-split">
+    <!-- LEFT: Prompt -->
+    <div class="exam-left" id="exLeft">
+      <!-- Tab bar (Full Test only) -->
+      <div class="extabs" id="pTabs">
+        <button class="extab on" onclick="switchTab(1)" id="ptab1">Task 1</button>
+        <button class="extab" onclick="switchTab(2)" id="ptab2">Task 2</button>
+        <span class="bg bg-b" style="margin-left:auto;margin-right:12px;font-size:11px">🔒 Locked</span>
+      </div>
+      <!-- Single task header (Task 1/Task 2 only) -->
+      <div class="ex-panel-hdr" id="exHdrSingle">
+        <div class="ex-panel-title" id="exLbl">📝 Prompt — Task 1</div>
+        <span class="bg bg-b" style="font-size:11px">🔒 Locked</span>
+      </div>
+      <!-- Prompt: Task 1 -->
+      <div class="ex-prompt-area ftc on" id="promptArea1">
+        <div id="exZoomBar" class="zoom-bar hidden">
+          <button class="zoom-btn" onclick="zoomImg(-1)">−</button>
+          <span class="zoom-label" id="zoomLbl">100%</span>
+          <button class="zoom-btn" onclick="zoomImg(1)">+</button>
+          <button class="zoom-btn" onclick="zoomImg(0)" title="Reset" style="font-size:12px">↺</button>
+          <button class="zoom-btn" onclick="openZoom()" title="Fullscreen" style="font-size:13px">⛶</button>
+        </div>
+        <div id="exImgBox" class="ex-prompt-img hidden">
+          <img id="exImgEl" src="" alt="Task image" onclick="openZoom()">
+        </div>
+        <div class="ex-prompt-text" id="exPrompt"></div>
+      </div>
+      <!-- Prompt: Task 2 (Full Test only) -->
+      <div class="ex-prompt-area ftc" id="promptArea2">
+        <div class="ex-prompt-text" id="exPrompt2"></div>
+      </div>
+    </div>
+
+    <!-- DIVIDER -->
+    <div class="exam-divider" id="exDivider"></div>
+
+    <!-- RIGHT: Essay -->
+    <div class="exam-right" id="exRight">
+      <!-- Tab bar (Full Test only) -->
+      <div class="extabs" id="eTabs">
+        <button class="extab on" onclick="switchTab(1)" id="etab1">Task 1</button>
+        <button class="extab" onclick="switchTab(2)" id="etab2">Task 2</button>
+        <span class="bg" id="wcBg" style="margin-left:auto;margin-right:12px">0 / 150 words</span>
+      </div>
+      <!-- Single task header (Task 1/Task 2 only) -->
+      <div class="ex-panel-hdr" id="exEssHdrSingle">
+        <div class="ex-panel-title">✍ Your Essay</div>
+        <span class="bg" id="wcBgSingle">0 / 150 words</span>
+      </div>
+      <div class="ex-essay-area">
+        <!-- Essay Task 1 / Single -->
+        <textarea id="essayTA" placeholder="Start writing your essay here..."
+          spellcheck="false" autocomplete="off" autocorrect="off" autocapitalize="off"
+          data-gramm="false" data-gramm_editor="false" data-enable-grammarly="false"></textarea>
+        <!-- Essay Task 2 (Full Test only) -->
+        <textarea id="essayTA2" placeholder="Start writing your Task 2 essay here..."
+          spellcheck="false" autocomplete="off" autocorrect="off" autocapitalize="off"
+          data-gramm="false" data-gramm_editor="false" data-enable-grammarly="false"
+          style="display:none"></textarea>
+      </div>
+      <div class="ex-bottom-bar">
+        <span style="font-size:12px;color:#8B95A5" id="wcBottom">Word count: 0</span>
+        <span style="font-size:12px;color:#8B95A5" id="timeBottom">Time remaining: 20:00</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ PHASE 3: REVIEW ═══ -->
+<div id="P3" class="hidden">
+  <div class="hdr">
+    <div class="hdr-logo">
+      <div class="hdr-icon">✎</div>
+      <div><div class="hdr-t">IELTS Writing Lab</div><div class="hdr-s">Exam Report</div></div>
+    </div>
+  </div>
+  <div class="wrap">
+    <div class="card">
+      <div class="stit">Overview</div>
+      <div class="sg mt8">
+        <div class="st"><div class="sv" id="rN" style="color:#1B2A4A">—</div><div class="sl">Student</div></div>
+        <div class="st"><div class="sv" id="rW">0</div><div class="sl" id="rWL">Words</div></div>
+        <div class="st" id="rW2Box" style="display:none"><div class="sv" id="rW2">0</div><div class="sl">Task 2 Words</div></div>
+        <div class="st"><div class="sv" id="rT">00:00</div><div class="sl">Time Spent</div></div>
+        <div class="st"><div class="sv" id="rV">0</div><div class="sl">Violations</div></div>
+      </div>
+    </div>
+    <div class="card card-r hidden" id="rVC">
+      <div class="stit" style="color:#E63946">⚠ Violation Details</div>
+      <div id="rVL" style="max-height:200px;overflow-y:auto"></div>
+    </div>
+    <div class="card">
+      <div class="stit">📊 Writing History</div>
+      <div id="rHTL" class="htl"></div>
+    </div>
+    <div class="card">
+      <div class="stit" id="rTL">Prompt</div>
+      <div id="rImgBox" style="display:none;margin-bottom:12px;border-radius:8px;overflow:hidden;border:1px solid #E0E4EA"></div>
+      <div class="pbox" id="rPrm"></div>
+    </div>
+    <div class="card">
+      <div class="fb mb14">
+        <div class="stit" style="margin:0" id="rEssLbl">Student's Essay</div>
+        <button class="btn btn-s" onclick="cpEssay(1)" id="cpBtn">📋 Copy</button>
+      </div>
+      <div class="pbox ebox-essay" id="rEss"></div>
+    </div>
+    <!-- Task 2 (Full Test only) -->
+    <div class="card hidden" id="rPrm2Card">
+      <div class="stit">Task 2 — Prompt</div>
+      <div class="pbox" id="rPrm2"></div>
+    </div>
+    <div class="card hidden" id="rEss2Card">
+      <div class="fb mb14">
+        <div class="stit" style="margin:0" id="rEssLbl2">Task 2 Essay</div>
+        <button class="btn btn-s" onclick="cpEssay(2)" id="cpBtn2">📋 Copy</button>
+      </div>
+      <div class="pbox ebox-essay" id="rEss2"></div>
+    </div>
+    <div class="fc g12 mt8 fw">
+      <div id="subSt"></div>
+    </div>
+  </div>
+</div>
 
 <script>
-var TEST_KEY = 'ielts_storage_test';
-var TEST_DATA = JSON.stringify({
-  name: 'Test Student',
-  essay: 'This is a test essay to check if storage persists after closing the browser tab on mobile devices.',
-  time: new Date().toISOString(),
-  words: 42
+/* ═══════════════════════════════════════════════════════════
+   TEACHER CONFIG — Paste your Google Apps Script URL below.
+   Leave blank '' if not using auto-submission.
+   ═══════════════════════════════════════════════════════════ */
+var SUBMIT_URL = 'https://script.google.com/macros/s/AKfycbydBkHZ4HRkOaCYIx2yOzN9Cqpsf8HcjezipYBSFqDtGNuIsrMFuhWGIdKaXvhaVvid/exec';
+
+/* ═══ CONFIG ═══ */
+var TK={task1:{l:'Task 1',t:20,w:150,d:'Academic / General Training'},task2:{l:'Task 2',t:40,w:250,d:'Essay'},full:{l:'Full Test',t:60,w:150,d:'Task 1 + Task 2'}};
+var S={task:'task1',img:null,imgT1:null,name:'',cls:'',prompt:'',prompt2:'',essay:'',essay2:'',tl:0,total:0,run:false,t0:null,vio:[],snaps:[],ti:null,si:null,url:'',device:'pc'};
+var vioNum=0,lastLeaveTs=0,imgZoom=100,activeTab=1;
+
+/* ═══ AUTOSAVE CONFIG ═══ */
+var AUTOSAVE_KEY='ielts_writing_lab_session';
+var AUTOSAVE_SUBMITTED_KEY='ielts_writing_lab_submitted';
+var autosaveInterval=null;
+var AUTOSAVE_MS=5000; /* save every 5 seconds */
+var driveFileId=null; /* Google Doc file ID — set after create */
+
+function $(id){return document.getElementById(id)}
+function D(id,v){$(id).classList.toggle('hidden',!v)}
+function fmt(s){return String(Math.floor(s/60)).padStart(2,'0')+':'+String(s%60).padStart(2,'0')}
+function wc(t){return t.trim().split(/\s+/).filter(Boolean).length}
+function ts(d){return d.toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit',second:'2-digit'})}
+
+/* ═══════════════════════════════════════════
+   PERSISTENT STORAGE LAYER
+   Cookie-first (survives Safari iOS tab close)
+   localStorage as secondary write
+   Chunked cookies: each ≤3800 bytes to stay under 4KB limit
+   ═══════════════════════════════════════════ */
+var CHUNK_SIZE=3800;
+var COOKIE_PREFIX='iwl_';
+var COOKIE_DAYS=1; /* expire after 1 day */
+
+function setCookie(name,val,days){
+  var d=new Date();d.setTime(d.getTime()+days*86400000);
+  var ex='expires='+d.toUTCString();
+  document.cookie=name+'='+encodeURIComponent(val)+';'+ex+';path=/;SameSite=Lax';
+}
+function getCookie(name){
+  var prefix=name+'=';
+  var parts=document.cookie.split(';');
+  for(var i=0;i<parts.length;i++){
+    var c=parts[i].trim();
+    if(c.indexOf(prefix)===0)return decodeURIComponent(c.substring(prefix.length));
+  }
+  return null;
+}
+function deleteCookie(name){
+  document.cookie=name+'=;expires=Thu, 01 Jan 1970 00:00:00 UTC;path=/;SameSite=Lax';
+}
+
+/* Write chunked cookies: iwl_0, iwl_1, iwl_2... + iwl_n = chunk count */
+function persistSet(key,jsonStr){
+  /* 1) Cookie — chunked */
+  try{
+    var prefix=COOKIE_PREFIX+key+'_';
+    /* Clear old chunks first */
+    var oldN=parseInt(getCookie(prefix+'n'))||0;
+    for(var i=0;i<oldN;i++) deleteCookie(prefix+i);
+    /* Write new chunks */
+    var chunks=[];
+    for(var i=0;i<jsonStr.length;i+=CHUNK_SIZE){
+      chunks.push(jsonStr.substring(i,i+CHUNK_SIZE));
+    }
+    for(var i=0;i<chunks.length;i++){
+      setCookie(prefix+i,chunks[i],COOKIE_DAYS);
+    }
+    setCookie(prefix+'n',String(chunks.length),COOKIE_DAYS);
+  }catch(e){}
+  /* 2) localStorage — secondary */
+  try{localStorage.setItem(AUTOSAVE_KEY,jsonStr)}catch(e){}
+}
+
+function persistGet(key){
+  /* Try cookie first */
+  try{
+    var prefix=COOKIE_PREFIX+key+'_';
+    var n=parseInt(getCookie(prefix+'n'))||0;
+    if(n>0){
+      var parts=[];
+      for(var i=0;i<n;i++){
+        var chunk=getCookie(prefix+i);
+        if(chunk===null){n=0;break}
+        parts.push(chunk);
+      }
+      if(parts.length===n&&n>0) return parts.join('');
+    }
+  }catch(e){}
+  /* Fallback to localStorage */
+  try{return localStorage.getItem(AUTOSAVE_KEY)}catch(e){}
+  return null;
+}
+
+function persistDelete(key){
+  /* Clear cookies */
+  try{
+    var prefix=COOKIE_PREFIX+key+'_';
+    var n=parseInt(getCookie(prefix+'n'))||0;
+    for(var i=0;i<n;i++) deleteCookie(prefix+i);
+    deleteCookie(prefix+'n');
+  }catch(e){}
+  /* Clear localStorage */
+  try{localStorage.removeItem(AUTOSAVE_KEY)}catch(e){}
+}
+
+/* Small single-value persist (for driveFileId, submitted flag) */
+function persistSetSmall(name,val){
+  try{setCookie(COOKIE_PREFIX+name,val,COOKIE_DAYS)}catch(e){}
+  try{localStorage.setItem(name,val)}catch(e){}
+}
+function persistGetSmall(name){
+  try{var v=getCookie(COOKIE_PREFIX+name);if(v)return v}catch(e){}
+  try{return localStorage.getItem(name)}catch(e){}
+  return null;
+}
+function persistDeleteSmall(name){
+  try{deleteCookie(COOKIE_PREFIX+name)}catch(e){}
+  try{localStorage.removeItem(name)}catch(e){}
+}
+
+/* ═══════════════════════════════════════════
+   AUTOSAVE SYSTEM
+   ═══════════════════════════════════════════ */
+function autosaveState(){
+  if(!S.run)return;
+  /* Sync textarea values */
+  var ta1=$('essayTA'),ta2=$('essayTA2');
+  if(ta1)S.essay=ta1.value||S.essay;
+  if(ta2&&ta2.style.display!=='none')S.essay2=ta2.value||S.essay2;
+
+  /* ── Cookie: essay text + minimal metadata only ── */
+  var cookieObj={
+    task:S.task, name:S.name, cls:S.cls,
+    essay:S.essay, essay2:S.essay2,
+    tl:S.tl, total:S.total,
+    t0:S.t0?S.t0.toISOString():null,
+    vioNum:vioNum, device:S.device,
+    activeTab:activeTab,
+    savedAt:new Date().toISOString()
+  };
+  persistSet('s',JSON.stringify(cookieObj));
+
+  /* ── localStorage: full data (prompt, snaps, vio, img) ── */
+  try{
+    var fullObj={
+      task:S.task, name:S.name, cls:S.cls,
+      prompt:S.prompt, prompt2:S.prompt2,
+      essay:S.essay, essay2:S.essay2,
+      tl:S.tl, total:S.total,
+      t0:S.t0?S.t0.toISOString():null,
+      vio:S.vio, snaps:S.snaps,
+      vioNum:vioNum, device:S.device,
+      img:S.img, activeTab:activeTab,
+      savedAt:new Date().toISOString()
+    };
+    localStorage.setItem(AUTOSAVE_KEY,JSON.stringify(fullObj));
+  }catch(e){}
+
+  showAutosaveStatus('saved');
+}
+
+function showAutosaveStatus(status){
+  var ind=$('autoSaveInd');
+  if(!ind)return;
+  if(status==='saving'){
+    ind.innerHTML='<span class="autosave-dot saving"></span>Saving...';
+  } else {
+    ind.innerHTML='<span class="autosave-dot saved"></span>Saved';
+  }
+}
+
+function clearAutosave(){
+  persistDelete('s');
+}
+
+function getSavedSession(){
+  try{
+    var raw=persistGet('s');
+    if(!raw)return null;
+    var obj=JSON.parse(raw);
+    /* Check if this session was already submitted */
+    var submitted=persistGetSmall(AUTOSAVE_SUBMITTED_KEY);
+    if(submitted){
+      var subData=JSON.parse(submitted);
+      if(subData.t0===obj.t0){
+        /* Already submitted — clear and ignore */
+        clearAutosave();
+        persistDeleteSmall(AUTOSAVE_SUBMITTED_KEY);
+        return null;
+      }
+    }
+    /* Check if session is stale (older than 4 hours) */
+    if(obj.savedAt){
+      var age=Date.now()-new Date(obj.savedAt).getTime();
+      if(age>4*60*60*1000){clearAutosave();return null}
+    }
+    return obj;
+  }catch(e){return null}
+}
+
+function startAutosave(){
+  if(autosaveInterval)clearInterval(autosaveInterval);
+  autosaveInterval=setInterval(function(){
+    showAutosaveStatus('saving');
+    autosaveState();
+  },AUTOSAVE_MS);
+  /* Also start draft sync to Drive */
+  startDraftSync();
+}
+
+function stopAutosave(){
+  if(autosaveInterval){clearInterval(autosaveInterval);autosaveInterval=null}
+  stopDraftSync();
+}
+
+/* ═══════════════════════════════════════════
+   DRAFT SYNC TO DRIVE
+   One-time snapshot at a fixed minute mark:
+   Task 1 → minute 15 | Task 2 → minute 35 | Full → minute 55
+   ═══════════════════════════════════════════ */
+var draftSyncDone=false;
+var DRAFT_SYNC_MINUTE={task1:2,task2:2,full:2};
+
+function startDraftSync(){ draftSyncDone=false; }
+function stopDraftSync(){}
+
+function checkDraftSync(){
+  if(draftSyncDone||!S.run||!S.url||!driveFileId)return;
+  var elapsed=Math.floor((S.total-S.tl)/60); /* minutes spent */
+  var target=DRAFT_SYNC_MINUTE[S.task];
+  if(typeof target==='undefined'||elapsed<target)return;
+  draftSyncDone=true;
+  syncDraftToDrive();
+}
+
+function syncDraftToDrive(){
+  if(!S.run||!S.url||!driveFileId)return;
+  /* Sync textarea values */
+  var ta1=$('essayTA'),ta2=$('essayTA2');
+  if(ta1)S.essay=ta1.value||S.essay;
+  if(ta2&&ta2.style.display!=='none')S.essay2=ta2.value||S.essay2;
+
+  var tk=TK[S.task],isFull=S.task==='full';
+  var payload={
+    action:'update',
+    fileId:driveFileId,
+    studentName:S.name,
+    className:S.cls,
+    taskType:tk.l,
+    date:S.t0?S.t0.toLocaleDateString('en-GB'):'',
+    time:S.t0?S.t0.toLocaleTimeString('en-GB'):'',
+    timeLeft:fmt(S.tl),
+    timeSpent:fmt(S.total-S.tl),
+    wordCount1:wc(S.essay),
+    wordCount2:isFull?wc(S.essay2):0,
+    violations:vioNum,
+    essay1:S.essay||'(No content)',
+    essay2:isFull?(S.essay2||'(No content)'):'',
+    prompt1:S.prompt||'',
+    prompt2:isFull?(S.prompt2||''):'',
+    savedAt:new Date().toISOString()
+  };
+
+  /* Use sendBeacon — fire and forget, won't block UI */
+  try{
+    navigator.sendBeacon(S.url,JSON.stringify(payload));
+    showAutosaveStatus('saved');
+  }catch(e){
+    try{
+      fetch(S.url,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain'},body:JSON.stringify(payload)});
+    }catch(e2){}
+  }
+}
+
+/* ═══ RECOVERY — check on page load ═══ */
+var recoveryChecked=false;
+function checkRecovery(){
+  if(recoveryChecked)return;
+  var saved=getSavedSession();
+  if(!saved||!saved.name||!saved.t0)return;
+  recoveryChecked=true;
+  /* Show recovery banner */
+  var info='Student: '+saved.cls+' — '+saved.name+' | '+TK[saved.task].l+' | Time left: '+fmt(saved.tl)+' | Words: '+wc(saved.essay||'');
+  if(saved.task==='full')info+=' (T1) / '+wc(saved.essay2||'')+' (T2)';
+  $('recoveryInfo').textContent=info;
+  D('recoveryBanner',1);
+}
+
+function recoverSession(){
+  var saved=getSavedSession();
+  if(!saved)return;
+
+  /* Restore state */
+  S.task=saved.task;S.name=saved.name;S.cls=saved.cls;
+  S.prompt=saved.prompt||S.prompt||'';S.prompt2=saved.prompt2||S.prompt2||'';
+  S.essay=saved.essay||'';S.essay2=saved.essay2||'';
+  S.tl=saved.tl;S.total=saved.total;
+  S.t0=saved.t0?new Date(saved.t0):new Date();
+  S.vio=saved.vio||[];S.snaps=saved.snaps||[];
+  S.device=saved.device||'pc';S.img=saved.img||null;
+  vioNum=saved.vioNum||0;
+  activeTab=saved.activeTab||1;
+  S.url=SUBMIT_URL;S.run=true;
+  /* Restore driveFileId if available */
+  try{driveFileId=persistGetSmall('ielts_drive_file_id')||null}catch(e){}
+
+  /* If time already expired, submit immediately */
+  if(S.tl<=0){
+    S.tl=0;
+    D('P0',0);D('P2',1);
+    document.body.style.background='#E8ECF0';
+    doSubmit();
+    return;
+  }
+
+  /* Show exam UI */
+  D('P0',0);D('P2',1);
+  document.body.style.background='#E8ECF0';
+  var tk=TK[S.task],isFull=S.task==='full',isMobile=S.device==='mobile';
+
+  if(isMobile)$('P2').classList.add('mobile-mode');
+
+  $('exSub').textContent=tk.l+' — '+S.cls+' — '+S.name;
+
+  if(isFull){
+    $('pTabs').className='extabs on';$('eTabs').className='extabs on';
+    $('exHdrSingle').style.display='none';$('exEssHdrSingle').style.display='none';
+    $('exPrompt').textContent=S.prompt;$('exPrompt2').textContent=S.prompt2;
+    $('essayTA').value=S.essay;$('essayTA2').value=S.essay2;
+    $('essayTA').style.display=activeTab===1?'block':'none';
+    $('essayTA2').style.display=activeTab===2?'block':'none';
+    $('ptab1').className='extab'+(activeTab===1?' on':'');
+    $('ptab2').className='extab'+(activeTab===2?' on':'');
+    $('etab1').className='extab'+(activeTab===1?' on':'');
+    $('etab2').className='extab'+(activeTab===2?' on':'');
+    $('promptArea1').className='ex-prompt-area ftc'+(activeTab===1?' on':'');
+    $('promptArea2').className='ex-prompt-area ftc'+(activeTab===2?' on':'');
+  } else {
+    $('pTabs').className='extabs';$('eTabs').className='extabs';
+    if(isMobile){$('exHdrSingle').style.display='none'}else{$('exHdrSingle').style.display='';$('exLbl').textContent='📝 Prompt — '+tk.l}
+    $('exEssHdrSingle').style.display='';
+    $('exPrompt').textContent=S.prompt;
+    $('essayTA').value=S.essay;$('essayTA').style.display='block';
+    $('essayTA2').style.display='none';
+  }
+
+  if(S.img){
+    $('exImgEl').src=S.img;$('exImgEl').style.width='100%';
+    $('exImgBox').classList.remove('hidden');$('exZoomBar').classList.remove('hidden');
+    $('zoomLbl').textContent='100%';imgZoom=100;
+  }
+
+  if(vioNum>0){D('vBdg',1);$('vCntH').textContent=vioNum}
+  /* Add a recovery violation note */
+  S.vio.push({time:new Date(),t:'returned',n:0,l:'Session recovered at '+ts(new Date())});
+
+  updClock();updWC();
+  S.ti=setInterval(function(){S.tl--;updClock();checkDraftSync();if(S.tl<=0)doSubmit()},1000);
+  S.si=setInterval(snap,30000);
+  startAutosave();
+  requestWakeLock();
+
+  $('essayTA').oninput=function(){S.essay=this.value;updWC()};
+  $('essayTA2').oninput=function(){S.essay2=this.value;updWC()};
+
+  setTimeout(function(){
+    document.addEventListener('visibilitychange',onVis);
+    window.addEventListener('blur',onBlur);
+  },1500);
+  setTimeout(function(){(activeTab===1?$('essayTA'):$('essayTA2')).focus()},200);
+}
+
+function discardRecovery(){
+  clearAutosave();
+  D('recoveryBanner',0);
+}
+
+/* Check on load — use multiple events for reliability on mobile */
+window.addEventListener('DOMContentLoaded',checkRecovery);
+window.addEventListener('load',function(){
+  /* Delayed re-check in case DOMContentLoaded didn't fire properly on mobile */
+  setTimeout(checkRecovery,500);
 });
 
-function log(msg) {
-  var el = document.getElementById('log');
-  el.textContent += new Date().toLocaleTimeString() + ' | ' + msg + '\n';
-  el.scrollTop = el.scrollHeight;
-}
 
-function statusHTML(name, ok, detail) {
-  return '<div class="status ' + (ok ? 'ok' : 'fail') + '">' 
-    + (ok ? '✅' : '❌') + ' ' + name 
-    + (detail ? ' — ' + detail : '')
-    + '</div>';
-}
-
-// ═══ WRITE ═══
-function writeAll() {
-  var results = '';
-  
-  // 1. localStorage
-  try {
-    localStorage.setItem(TEST_KEY, TEST_DATA);
-    var check = localStorage.getItem(TEST_KEY);
-    if (check === TEST_DATA) {
-      results += statusHTML('localStorage', true, 'Written OK');
-      log('localStorage: WRITE OK');
-    } else {
-      results += statusHTML('localStorage', false, 'Write succeeded but read-back failed');
-      log('localStorage: WRITE but read-back FAIL');
-    }
-  } catch(e) {
-    results += statusHTML('localStorage', false, e.message);
-    log('localStorage: WRITE FAIL — ' + e.message);
+/* ═══ DEVICE SELECT ═══ */
+function pickDevice(d){
+  S.device=d;
+  D('P0',0);D('P1',1);
+  if(d==='mobile'){
+    $('singlePromptBox').style.display='none';
+    $('singleImgBox').style.display='none';
+    $('fullPromptBox').style.display='none';
   }
-  
-  // 2. sessionStorage
-  try {
-    sessionStorage.setItem(TEST_KEY, TEST_DATA);
-    var check = sessionStorage.getItem(TEST_KEY);
-    if (check === TEST_DATA) {
-      results += statusHTML('sessionStorage', true, 'Written OK (will NOT survive tab close)');
-      log('sessionStorage: WRITE OK');
-    } else {
-      results += statusHTML('sessionStorage', false, 'Write succeeded but read-back failed');
-      log('sessionStorage: WRITE but read-back FAIL');
-    }
-  } catch(e) {
-    results += statusHTML('sessionStorage', false, e.message);
-    log('sessionStorage: WRITE FAIL — ' + e.message);
+}
+
+/* ═══ SETUP ═══ */
+function pickTask(t){
+  S.task=t;
+  document.querySelectorAll('.tb').forEach(function(b){b.classList.toggle('on',b.dataset.t===t)});
+  var isFull=t==='full';
+  if(S.device==='mobile'){
+    $('singlePromptBox').style.display='none';
+    $('singleImgBox').style.display='none';
+    $('fullPromptBox').style.display='none';
+  } else {
+    $('singlePromptBox').style.display=isFull?'none':'';
+    $('singleImgBox').style.display=(isFull||t==='task2')?'none':'';
+    $('fullPromptBox').style.display=isFull?'':'none';
   }
-  
-  // 3. IndexedDB
-  writeIndexedDB().then(function(ok) {
-    if (ok) {
-      results += statusHTML('IndexedDB', true, 'Written OK');
-      log('IndexedDB: WRITE OK');
-    } else {
-      results += statusHTML('IndexedDB', false, 'Write failed');
-      log('IndexedDB: WRITE FAIL');
-    }
-    
-    // 4. Cookie
-    try {
-      document.cookie = TEST_KEY + '=' + encodeURIComponent(TEST_DATA.substring(0, 200)) 
-        + '; max-age=86400; path=/; SameSite=Lax';
-      var cookies = document.cookie;
-      if (cookies.indexOf(TEST_KEY) >= 0) {
-        results += statusHTML('Cookie', true, 'Written OK (truncated to 200 chars)');
-        log('Cookie: WRITE OK');
-      } else {
-        results += statusHTML('Cookie', false, 'Cookie not found after setting');
-        log('Cookie: WRITE FAIL — not found after set');
-      }
-    } catch(e) {
-      results += statusHTML('Cookie', false, e.message);
-      log('Cookie: WRITE FAIL — ' + e.message);
-    }
-    
-    // 5. Cache API
-    writeCacheAPI().then(function(ok) {
-      if (ok) {
-        results += statusHTML('Cache API', true, 'Written OK');
-        log('Cache API: WRITE OK');
-      } else {
-        results += statusHTML('Cache API', false, 'Not available or write failed');
-        log('Cache API: WRITE FAIL');
-      }
-      
-      results += '<div class="info">Now close this tab completely, reopen it, and tap "Read Test Data"</div>';
-      document.getElementById('writeResult').innerHTML = results;
-    });
-  });
+  chk();
+}
+$('inImg').onchange=function(e){
+  var f=e.target.files[0];if(!f)return;
+  var r=new FileReader();
+  r.onload=function(ev){
+    S.img=ev.target.result;
+    $('uzBox').className='uz ok';$('uzBox').textContent='✅ Image uploaded — click to change';
+    $('ipBox').innerHTML='<img src="'+ev.target.result+'">';$('ipBox').style.display='block';
+    $('rmImg').style.display='block';chk();
+  };
+  r.readAsDataURL(f);
+};
+function clearImg(){
+  S.img=null;$('uzBox').className='uz';$('uzBox').textContent='🖼 Upload prompt image (Task 1) — optional';
+  $('ipBox').style.display='none';$('rmImg').style.display='none';$('inImg').value='';chk();
 }
 
-// ═══ READ ═══
-function readAll() {
-  var results = '';
-  
-  // 1. localStorage
-  try {
-    var val = localStorage.getItem(TEST_KEY);
-    if (val === TEST_DATA) {
-      results += statusHTML('localStorage', true, 'Data survived! ✓');
-      log('localStorage: READ OK — data survived');
-    } else if (val) {
-      results += statusHTML('localStorage', false, 'Data changed or corrupted');
-      log('localStorage: READ PARTIAL — data corrupted');
+$('inImgT1').onchange=function(e){
+  var f=e.target.files[0];if(!f)return;
+  var r=new FileReader();
+  r.onload=function(ev){
+    S.imgT1=ev.target.result;
+    $('uzBoxT1').className='uz ok';$('uzBoxT1').textContent='✅ Image uploaded — click to change';
+    $('ipBoxT1').innerHTML='<img src="'+ev.target.result+'">';$('ipBoxT1').style.display='block';
+    $('rmImgT1').style.display='block';chk();
+  };
+  r.readAsDataURL(f);
+};
+function clearImgT1(){
+  S.imgT1=null;$('uzBoxT1').className='uz';$('uzBoxT1').textContent='🖼 Upload Task 1 image — optional';
+  $('ipBoxT1').style.display='none';$('rmImgT1').style.display='none';$('inImgT1').value='';chk();
+}
+
+function chk(){
+  var ok=$('inClass').value&&$('inName').value.trim();
+  if(S.device!=='mobile'){
+    if(S.task==='full'){
+      ok=ok&&($('inPromptT1').value.trim()||S.imgT1)&&$('inPromptT2').value.trim();
     } else {
-      results += statusHTML('localStorage', false, 'Empty — data lost');
-      log('localStorage: READ FAIL — empty');
+      ok=ok&&($('inPrompt').value.trim()||S.img);
     }
-  } catch(e) {
-    results += statusHTML('localStorage', false, e.message);
-    log('localStorage: READ FAIL — ' + e.message);
   }
-  
-  // 2. sessionStorage
-  try {
-    var val = sessionStorage.getItem(TEST_KEY);
-    if (val === TEST_DATA) {
-      results += statusHTML('sessionStorage', true, 'Data survived! ✓');
-      log('sessionStorage: READ OK');
-    } else {
-      results += statusHTML('sessionStorage', false, 'Empty (expected if tab was closed)');
-      log('sessionStorage: READ FAIL — empty (expected)');
+  $('goBtn').disabled=!ok;
+}
+$('inName').oninput=chk;
+$('inPrompt').oninput=chk;
+$('inClass').onchange=chk;
+$('inPromptT1').oninput=chk;
+$('inPromptT2').oninput=chk;
+
+/* ═══ IMAGE ZOOM ═══ */
+function zoomImg(dir){
+  if(dir===0){imgZoom=100}
+  else{imgZoom=Math.max(50,Math.min(300,imgZoom+dir*25))}
+  $('exImgEl').style.width=imgZoom+'%';
+  $('zoomLbl').textContent=imgZoom+'%';
+}
+function openZoom(){
+  if(!S.img)return;
+  $('zoomImg').src=S.img;
+  D('zoomModal',1);
+}
+function closeZoom(){D('zoomModal',0)}
+document.addEventListener('keydown',function(e){if(e.key==='Escape')closeZoom()});
+
+/* ═══ TAB SWITCHING (Full Test) ═══ */
+function switchTab(n){
+  if(activeTab===1)S.essay=$('essayTA').value;
+  if(activeTab===2)S.essay2=$('essayTA2').value;
+  activeTab=n;
+  $('ptab1').className='extab'+(n===1?' on':'');
+  $('ptab2').className='extab'+(n===2?' on':'');
+  $('etab1').className='extab'+(n===1?' on':'');
+  $('etab2').className='extab'+(n===2?' on':'');
+  $('promptArea1').className='ex-prompt-area ftc'+(n===1?' on':'');
+  $('promptArea2').className='ex-prompt-area ftc'+(n===2?' on':'');
+  $('essayTA').style.display=n===1?'block':'none';
+  $('essayTA2').style.display=n===2?'block':'none';
+  if(n===1)$('essayTA').value=S.essay;
+  if(n===2)$('essayTA2').value=S.essay2;
+  updWC();
+  if(n===1)setTimeout(function(){$('essayTA').focus()},50);
+  if(n===2)setTimeout(function(){$('essayTA2').focus()},50);
+}
+
+/* ═══ PANEL RESIZER ═══ */
+(function(){
+  var divider=$('exDivider'),left=$('exLeft'),right=$('exRight'),dragging=false;
+  divider.addEventListener('mousedown',function(e){
+    e.preventDefault();dragging=true;
+    document.body.style.cursor='col-resize';
+    document.body.style.userSelect='none';
+  });
+  document.addEventListener('mousemove',function(e){
+    if(!dragging)return;
+    var container=left.parentElement;
+    var rect=container.getBoundingClientRect();
+    var pct=((e.clientX-rect.left)/rect.width)*100;
+    pct=Math.max(25,Math.min(75,pct));
+    left.style.width=pct+'%';
+    right.style.width=(100-pct)+'%';
+  });
+  document.addEventListener('mouseup',function(){
+    if(dragging){dragging=false;document.body.style.cursor='';document.body.style.userSelect=''}
+  });
+})();
+
+/* ═══════════════════════════════════════════
+   CREATE FILE ON DRIVE — called at exam start
+   ═══════════════════════════════════════════ */
+function createDriveFile(){
+  if(!S.url)return;
+  var tk=TK[S.task];
+  var dd=String(S.t0.getDate()).padStart(2,'0'),mm=String(S.t0.getMonth()+1).padStart(2,'0'),yy=String(S.t0.getFullYear()).slice(2);
+  var payload={
+    action:'create',
+    studentName:S.name,
+    className:S.cls,
+    taskType:tk.l,
+    shortDate:dd+'-'+mm+'-'+yy,
+    date:S.t0.toLocaleDateString('en-GB'),
+    time:S.t0.toLocaleTimeString('en-GB')
+  };
+  fetch(S.url,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify(payload)})
+  .then(function(r){return r.json()})
+  .then(function(resp){
+    if(resp.fileId){
+      driveFileId=resp.fileId;
+      /* Save fileId for recovery */
+      try{persistSetSmall('ielts_drive_file_id',driveFileId)}catch(e){}
     }
-  } catch(e) {
-    results += statusHTML('sessionStorage', false, e.message);
-    log('sessionStorage: READ FAIL — ' + e.message);
+  })
+  .catch(function(err){
+    /* If create fails (e.g. offline), will fallback to legacy submit later */
+    console.log('Drive create failed, will use legacy submit:',err);
+  });
+}
+
+/* ═══ START ═══ */
+function go(){
+  S.name=$('inName').value.trim();
+  S.cls=$('inClass').value;
+  S.url=SUBMIT_URL;
+  var isFull=S.task==='full';
+  var isMobile=S.device==='mobile';
+
+  if(isMobile){
+    S.prompt='(Mobile — prompt provided separately by teacher)';
+    S.prompt2=isFull?'(Mobile — prompt provided separately by teacher)':'';
+    S.img=null;S.imgT1=null;
+    if(!S.cls||!S.name)return;
+  } else {
+    if(isFull){
+      S.prompt=$('inPromptT1').value.trim();
+      S.prompt2=$('inPromptT2').value.trim();
+      S.img=S.imgT1;
+      if(!S.cls||!S.name||(!S.prompt&&!S.img)||!S.prompt2)return;
+    } else {
+      S.prompt=$('inPrompt').value.trim();
+      S.prompt2='';
+      if(!S.cls||!S.name||(!S.prompt&&!S.img))return;
+    }
   }
-  
-  // 3. IndexedDB
-  readIndexedDB().then(function(val) {
-    if (val === TEST_DATA) {
-      results += statusHTML('IndexedDB', true, 'Data survived! ✓');
-      log('IndexedDB: READ OK — data survived');
-    } else if (val) {
-      results += statusHTML('IndexedDB', false, 'Data changed or corrupted');
-      log('IndexedDB: READ PARTIAL');
-    } else {
-      results += statusHTML('IndexedDB', false, 'Empty — data lost');
-      log('IndexedDB: READ FAIL — empty');
+
+  var tk=TK[S.task],ct=$('inTime').value;
+  var mins=ct?parseInt(ct):tk.t;
+  S.total=mins*60;S.tl=S.total;
+  S.t0=new Date();S.vio=[];S.snaps=[];S.essay='';S.essay2='';
+  vioNum=0;lastLeaveTs=0;imgZoom=100;activeTab=1;
+
+  if(!confirm('Start '+tk.l+' exam?\nTime: '+mins+' minutes\n\nYou cannot go back after starting!'))return;
+
+  S.run=true;
+  D('P1',0);D('P2',1);
+  document.body.style.background='#E8ECF0';
+
+  if(isMobile){
+    $('P2').classList.add('mobile-mode');
+    $('exHdrSingle').style.display='none';
+    if(!isFull){
+      $('exEssHdrSingle').style.display='';
+      $('pTabs').className='extabs';
+      $('eTabs').className='extabs';
     }
-    
-    // 4. Cookie
-    try {
-      var cookies = document.cookie;
-      if (cookies.indexOf(TEST_KEY) >= 0) {
-        results += statusHTML('Cookie', true, 'Data survived! ✓');
-        log('Cookie: READ OK — data survived');
-      } else {
-        results += statusHTML('Cookie', false, 'Empty — data lost');
-        log('Cookie: READ FAIL — empty');
-      }
-    } catch(e) {
-      results += statusHTML('Cookie', false, e.message);
-      log('Cookie: READ FAIL — ' + e.message);
+  }
+
+  $('exSub').textContent=tk.l+' — '+S.cls+' — '+S.name;
+
+  if(isFull){
+    $('pTabs').className='extabs on';
+    $('eTabs').className='extabs on';
+    $('exHdrSingle').style.display='none';
+    $('exEssHdrSingle').style.display='none';
+    $('exPrompt').textContent=S.prompt;
+    $('exPrompt2').textContent=S.prompt2;
+    $('essayTA').style.display='block';
+    $('essayTA2').style.display='none';
+    $('promptArea1').className='ex-prompt-area ftc on';
+    $('promptArea2').className='ex-prompt-area ftc';
+  } else {
+    $('pTabs').className='extabs';
+    $('eTabs').className='extabs';
+    $('exHdrSingle').style.display='';
+    $('exEssHdrSingle').style.display='';
+    $('exLbl').textContent='📝 Prompt — '+tk.l;
+    $('exPrompt').textContent=S.prompt;
+    $('essayTA').style.display='block';
+    $('essayTA2').style.display='none';
+    $('promptArea1').className='ex-prompt-area ftc on';
+    $('promptArea2').className='ex-prompt-area ftc';
+  }
+
+  if(S.img){
+    $('exImgEl').src=S.img;
+    $('exImgEl').style.width='100%';
+    $('exImgBox').classList.remove('hidden');
+    $('exZoomBar').classList.remove('hidden');
+    $('zoomLbl').textContent='100%';
+  }
+
+  updClock();updWC();snap();
+  S.ti=setInterval(function(){S.tl--;updClock();checkDraftSync();if(S.tl<=0)doSubmit()},1000);
+  S.si=setInterval(snap,30000);
+  startAutosave(); /* ← Start autosave */
+  createDriveFile(); /* ← Create file on Drive */
+  setTimeout(function(){$('essayTA').focus()},200);
+
+  $('essayTA').oninput=function(){S.essay=this.value;updWC()};
+  $('essayTA2').oninput=function(){S.essay2=this.value;updWC()};
+  setTimeout(function(){
+    document.addEventListener('visibilitychange',onVis);
+    window.addEventListener('blur',onBlur);
+  },1500);
+
+  requestWakeLock();
+}
+
+/* ═══ MONITORING ═══ */
+function recordLeave(){
+  var now=Date.now();
+  if(now-lastLeaveTs<1000)return;
+  lastLeaveTs=now;
+  vioNum++;
+  var n=new Date();
+  S.vio.push({time:n,t:'left',n:vioNum,l:'Violation #'+vioNum+' — Left tab at '+ts(n)});
+  updVio();warn();
+}
+function onVis(){
+  if(!S.run)return;
+  if(document.hidden){recordLeave()}
+  else{
+    S.vio.push({time:new Date(),t:'returned',n:0,l:'Returned at '+ts(new Date())});
+    requestWakeLock(); /* re-acquire wake lock */
+  }
+}
+function onBlur(){if(!S.run)return;recordLeave()}
+function warn(){$('warnN').textContent=vioNum;D('warnOL',1)}
+function snap(){
+  var ta1=$('essayTA'),ta2=$('essayTA2');
+  if(ta1&&ta1.value)S.essay=ta1.value;
+  if(ta2&&ta2.value)S.essay2=ta2.value;
+  S.snaps.push({time:S.total-S.tl,words:wc(S.essay),words2:wc(S.essay2),at:new Date()});
+}
+
+function updWC(){
+  var isFull=S.task==='full';
+  var w,min;
+  if(isFull){
+    w=activeTab===1?wc(S.essay):wc(S.essay2);
+    min=activeTab===1?150:250;
+    var b=$('wcBg');
+    b.textContent=(activeTab===1?'T1: ':'T2: ')+w+' / '+min+' words';
+    b.className='bg '+(w>=min?'bg-g':w>0?'bg-r':'bg-b');
+    $('wcBottom').textContent=(activeTab===1?'Task 1: ':'Task 2: ')+w+(w>=min?' ✓':'');
+  } else {
+    var tk=TK[S.task];w=wc(S.essay);min=tk.w;
+    var b=$('wcBgSingle');
+    b.textContent=w+' / '+min+' words';
+    b.className='bg '+(w>=min?'bg-g':w>0?'bg-r':'bg-b');
+    $('wcBottom').textContent='Word count: '+w+(w>=min?' ✓':'');
+  }
+}
+function updClock(){
+  var t=S.tl,el=$('clock');
+  el.textContent=fmt(t);el.style.color=t<=60?'#FF6B6B':t<=300?'#F4A261':'#fff';
+  var p=(t/S.total)*100,f=$('tFill');
+  f.style.width=p+'%';f.style.background=t<=60?'#E63946':t<=300?'#F4A261':'#2D6A4F';
+  $('timeBottom').textContent='Time remaining: '+fmt(t);
+}
+function updVio(){if(vioNum>0){D('vBdg',1);$('vCntH').textContent=vioNum}}
+
+/* ═══ SUBMIT ═══ */
+var isSubmitting=false; /* prevent double submit */
+
+function doSubmit(){
+  if(!S.run||isSubmitting)return;
+  isSubmitting=true;
+  /* Always save current active tab first */
+  if(activeTab===1)S.essay=$('essayTA').value;
+  if(activeTab===2)S.essay2=$('essayTA2').value;
+  var ta1=$('essayTA').value,ta2=$('essayTA2').value;
+  S.essay=ta1||S.essay;
+  S.essay2=ta2||S.essay2;
+  snap();
+  clearInterval(S.ti);clearInterval(S.si);S.run=false;
+  stopAutosave();
+  releaseWakeLock();
+  document.removeEventListener('visibilitychange',onVis);
+  window.removeEventListener('blur',onBlur);
+  /* Mark as submitted so recovery won't re-trigger */
+  try{persistSetSmall(AUTOSAVE_SUBMITTED_KEY,JSON.stringify({t0:S.t0?S.t0.toISOString():''}))}catch(e){}
+  try{persistDeleteSmall('ielts_drive_file_id')}catch(e){}
+  clearAutosave();
+  review();
+  setTimeout(function(){exportAndSubmit()},500);
+}
+
+/* ═══════════════════════════════════════════
+   EMERGENCY SUBMIT — beforeunload / pagehide
+   Submit data when browser/tab is closing
+   ═══════════════════════════════════════════ */
+function emergencySubmit(){
+  if(!S.run)return;
+  /* Sync latest essay content */
+  var ta1=$('essayTA'),ta2=$('essayTA2');
+  if(ta1)S.essay=ta1.value||S.essay;
+  if(ta2)S.essay2=ta2.value||S.essay2;
+  snap();
+
+  /* Save to cookie+localStorage so it can be recovered or retried */
+  autosaveState();
+
+  /* Use sendBeacon for reliable submission even when page is closing */
+  if(S.url&&navigator.sendBeacon){
+    var wasRunning=S.run;
+    S.run=false;
+    var rd=rdata();
+    rd.action='final';
+    rd.fileId=driveFileId||null;
+    var payload=JSON.stringify(rd);
+    S.run=wasRunning;
+    try{
+      navigator.sendBeacon(S.url,payload);
+    }catch(e){}
+  }
+}
+
+window.addEventListener('beforeunload',function(e){
+  if(S.run){
+    emergencySubmit();
+    /* Show browser's "are you sure?" dialog */
+    e.preventDefault();
+    e.returnValue='Your exam is still in progress! Are you sure you want to leave?';
+    return e.returnValue;
+  }
+});
+
+/* pagehide fires more reliably on mobile Safari */
+window.addEventListener('pagehide',function(e){
+  if(S.run){
+    emergencySubmit();
+  }
+});
+
+/* Also handle mobile "freeze" events where available */
+if('onfreeze' in document){
+  document.addEventListener('freeze',function(){
+    if(S.run)emergencySubmit();
+  });
+}
+
+
+/* ═══ REVIEW ═══ */
+function review(){
+  D('P2',0);D('P3',1);
+  document.body.style.background='#F7F8FA';
+  var tk=TK[S.task],w=wc(S.essay),el=S.total-S.tl,v=vioNum;
+  var isFull=S.task==='full';
+
+  $('rN').textContent=S.cls+' — '+S.name;
+  $('rT').textContent=fmt(el);
+  $('rV').textContent=v;$('rV').style.color=v>0?'#E63946':'#2D6A4F';
+
+  if(isFull){
+    var w2=wc(S.essay2);
+    $('rWL').textContent='Task 1 Words (min 150)';
+    $('rW').textContent=w;$('rW').style.color=w>=150?'#2D6A4F':'#E63946';
+    $('rW2Box').style.display='';
+    $('rW2').textContent=w2;$('rW2').style.color=w2>=250?'#2D6A4F':'#E63946';
+  } else {
+    $('rWL').textContent='Words (min '+tk.w+')';
+    $('rW').textContent=w;$('rW').style.color=w>=tk.w?'#2D6A4F':'#E63946';
+    $('rW2Box').style.display='none';
+  }
+
+  if(S.vio.length>0){
+    D('rVC',1);
+    $('rVL').innerHTML=S.vio.map(function(vi){
+      var c=vi.t==='returned'?'vi-r':vi.t==='paste'?'vi-p':'vi-l';
+      var ic=vi.t==='returned'?'↩':vi.t==='paste'?'📋':'↗';
+      return '<div class="vi '+c+'">'+ic+' '+vi.l+'</div>';
+    }).join('');
+  }
+
+  var mx=Math.max(tk.w,Math.max.apply(null,S.snaps.map(function(s){return Math.max(s.words,s.words2||0)})));
+  if(S.snaps.length){
+    $('rHTL').innerHTML=S.snaps.map(function(sn,i){
+      var p=mx>0?Math.min(sn.words/mx*100,100):0;
+      var ok=sn.words>=(isFull?150:tk.w);
+      var prev=i>0?S.snaps[i-1].words:0;
+      var d=sn.words-prev;var ds=d>0?'(+'+d+')':d===0?'':'('+d+')';
+      var extra=isFull?' | T2: '+sn.words2+' words':'';
+      return '<div class="hi"><div class="hd" style="background:'+(ok?'#2D6A4F':'#1B2A4A')+'"></div><div class="hc"><span style="font-weight:700;color:#1B2A4A">'+fmt(sn.time)+'</span><span style="color:#6B7280;margin-left:8px">'+sn.words+' words '+ds+extra+'</span>'+(ok?'<span class="bg bg-g" style="margin-left:8px;font-size:10px">✓ Met</span>':'')+'<div class="hb"><div class="hbf" style="width:'+p+'%;'+(ok?'background:linear-gradient(90deg,#2D6A4F,#48BB78)':'')+'"></div></div></div></div>';
+    }).join('');
+  } else {$('rHTL').innerHTML='<div style="color:#9CA3AF">No data</div>'}
+
+  $('rTL').textContent=(isFull?'Task 1 — ':'')+'Prompt';
+  $('rPrm').textContent=S.prompt;
+  if(S.img){$('rImgBox').innerHTML='<img src="'+S.img+'" style="width:100%;max-height:200px;object-fit:contain;background:#F8FAFB">';$('rImgBox').style.display='block'}
+  $('rEssLbl').textContent=S.name+"'s "+(isFull?'Task 1 ':'')+'Essay';
+  $('rEss').textContent=S.essay||'(No content)';
+
+  if(isFull){
+    $('rPrm2Card').classList.remove('hidden');
+    $('rPrm2').textContent=S.prompt2;
+    $('rEss2Card').classList.remove('hidden');
+    $('rEssLbl2').textContent=S.name+"'s Task 2 Essay";
+    $('rEss2').textContent=S.essay2||'(No content)';
+  }
+}
+
+/* ═══ COPY ═══ */
+function cpEssay(n){
+  var txt=n===2?S.essay2:S.essay;
+  var btn=n===2?$('cpBtn2'):$('cpBtn');
+  navigator.clipboard.writeText(txt).then(function(){
+    btn.textContent='✓ Copied';setTimeout(function(){btn.textContent='📋 Copy'},2000);
+  }).catch(function(){
+    var t=document.createElement('textarea');t.value=txt;document.body.appendChild(t);t.select();
+    document.execCommand('copy');document.body.removeChild(t);
+    btn.textContent='✓ Copied';setTimeout(function(){btn.textContent='📋 Copy'},2000);
+  });
+}
+
+/* ═══ REPORT DATA ═══ */
+function rdata(){
+  var tk=TK[S.task],w=wc(S.essay),el=S.total-S.tl;
+  var dd=String(S.t0.getDate()).padStart(2,'0'),mm=String(S.t0.getMonth()+1).padStart(2,'0'),yy=String(S.t0.getFullYear()).slice(2);
+  var isFull=S.task==='full';
+  var obj={
+    studentName:S.name,className:S.cls,taskType:tk.l,taskDesc:tk.d,
+    shortDate:dd+'-'+mm+'-'+yy,
+    date:S.t0.toLocaleDateString('en-GB'),time:S.t0.toLocaleTimeString('en-GB'),
+    totalTime:fmt(S.total),timeSpent:fmt(el),
+    wordCount:w,minWords:tk.w,violations:vioNum,
+    isFull:isFull,
+    violationDetails:S.vio.map(function(vi){return vi.l}).join('\n')||'No violations',
+    writingHistory:S.snaps.map(function(sn,i){
+      var prev=i>0?S.snaps[i-1].words:0;var d=sn.words-prev;
+      var extra=isFull?' | T2: '+sn.words2:'';
+      return fmt(sn.time)+' | '+sn.words+' words | '+(d>=0?'+':'')+d+extra;
+    }).join('\n'),
+    hasImage:!!S.img,
+    essay1:S.essay||'(No content)',
+    prompt1:S.prompt||'',
+    wordCount1:w,
+    essay2:isFull?(S.essay2||'(No content)'):'(N/A — single task)',
+    prompt2:isFull?(S.prompt2||''):'',
+    wordCount2:isFull?wc(S.essay2):0,
+    essay:S.essay||'(No content)',
+    prompt:S.prompt||''
+  };
+  return obj;
+}
+
+/* ═══ EXPORT .DOC ═══ */
+function exportDoc(){
+  var r=rdata(),tk=TK[S.task];
+  function esc(s){return(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g,'<br>')}
+  var vRows='';
+  if(S.vio.length){
+    vRows=S.vio.map(function(vi){
+      var c=vi.t==='returned'?'#2D6A4F':vi.t==='paste'?'#B45309':'#E63946';
+      var ic=vi.t==='returned'?'↩ Returned':vi.t==='paste'?'📋 Paste':'↗ Left tab';
+      var num=vi.n>0?vi.n:'—';
+      return '<tr><td style="padding:6px 12px;border:1px solid #ddd;font-size:11px">'+num+'</td><td style="padding:6px 12px;border:1px solid #ddd;color:'+c+';font-weight:600">'+ic+'</td><td style="padding:6px 12px;border:1px solid #ddd">'+vi.l+'</td></tr>';
+    }).join('');
+  } else {vRows='<tr><td colspan="3" style="padding:12px;border:1px solid #ddd;text-align:center;color:#2D6A4F;font-weight:600">✓ No violations</td></tr>'}
+  var hRows=S.snaps.map(function(sn,i){
+    var prev=i>0?S.snaps[i-1].words:0;var d=sn.words-prev;var ds=d>0?'+'+d:''+d;var ok=sn.words>=tk.w;
+    return '<tr><td style="padding:6px 12px;border:1px solid #ddd;font-family:Consolas,monospace;font-size:11px">'+fmt(sn.time)+'</td><td style="padding:6px 12px;border:1px solid #ddd;font-weight:600;'+(ok?'color:#2D6A4F':'')+'">'+sn.words+'</td><td style="padding:6px 12px;border:1px solid #ddd;color:'+(d>0?'#2D6A4F':'#999')+'">'+ds+'</td></tr>';
+  }).join('');
+  var h='<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word" xmlns="http://www.w3.org/TR/REC-html40"><head><meta charset="utf-8"><style>'
+  +'body{font-family:Arial,sans-serif;font-size:12pt;color:#1a1a2e;margin:40px;line-height:1.6}'
+  +'h1{font-size:20pt;color:#1B2A4A;border-bottom:3px solid #1B2A4A;padding-bottom:8px;margin-bottom:4px}'
+  +'h2{font-size:14pt;color:#1B2A4A;margin-top:24px;margin-bottom:10px;border-bottom:1px solid #E0E4EA;padding-bottom:4px}'
+  +'table{border-collapse:collapse;width:100%;margin:8px 0}'
+  +'th{background:#1B2A4A;color:#fff;padding:8px 12px;text-align:left;font-size:11px;text-transform:uppercase;letter-spacing:.5px}'
+  +'td{padding:6px 12px;border:1px solid #ddd;font-size:11pt}'
+  +'.it td:first-child{font-weight:600;color:#4A5568;width:180px;background:#F8FAFB}'
+  +'.eb{background:#FAFBFC;border:1px solid #E0E4EA;padding:20px;font-family:Georgia,serif;font-size:12pt;line-height:2;margin:8px 0}'
+  +'.pb{background:#F0F4F8;border-left:4px solid #1B2A4A;padding:16px 20px;margin:8px 0;font-size:11pt}'
+  +'.ft{margin-top:30px;padding-top:12px;border-top:1px solid #E0E4EA;font-size:9pt;color:#9CA3AF;text-align:center}'
+  +'.gr{color:#2D6A4F}.rd{color:#E63946}'
+  +'</style></head><body>'
+  +'<h1>IELTS Writing Lab — Exam Report</h1>'
+  +'<p style="color:#8B95A5;font-size:10pt;margin-top:0">'+r.date+' '+r.time+'</p>'
+  +'<h2>General Information</h2><table class="it">'
+  +'<tr><td>Class</td><td><strong>'+esc(r.className)+'</strong></td></tr>'
+  +'<tr><td>Student Name</td><td><strong>'+esc(r.studentName)+'</strong></td></tr>'
+  +'<tr><td>Task Type</td><td>'+r.taskType+' — '+r.taskDesc+'</td></tr>'
+  +'<tr><td>Date</td><td>'+r.date+' at '+r.time+'</td></tr>'
+  +'<tr><td>Time Allowed</td><td>'+r.totalTime+'</td></tr>'
+  +'<tr><td>Time Spent</td><td>'+r.timeSpent+'</td></tr>'
+  +'<tr><td>Word Count</td><td class="'+(r.wordCount>=r.minWords?'gr':'rd')+'"><strong>'+r.wordCount+'</strong> / '+r.minWords+' minimum</td></tr>'
+  +(r.isFull?'<tr><td>Task 2 Words</td><td class="'+(r.wordCount2>=250?'gr':'rd')+'"><strong>'+r.wordCount2+'</strong> / 250 minimum</td></tr>':'')
+  +'<tr><td>Violations</td><td class="'+(r.violations>0?'rd':'gr')+'"><strong>'+r.violations+'</strong></td></tr>'
+  +'</table>'
+  +'<h2>Violation Details</h2><table><tr><th>#</th><th>Type</th><th>Details</th></tr>'+vRows+'</table>'
+  +'<h2>Writing History (Snapshot every 30s)</h2><table><tr><th>Time</th><th>Words</th><th>Change</th></tr>'+hRows+'</table>'
+  +'<h2>'+(r.isFull?'Task 1 Prompt':'Prompt')+'</h2><div class="pb">'+esc(r.isFull?(S.prompt||r.prompt):r.prompt)+'</div>'
+  +(r.hasImage?'<p style="color:#6B7280;font-style:italic">[Prompt included an image — see original file]</p>':'')
+  +'<h2>'+esc(r.studentName)+'\'s '+(r.isFull?'Task 1 ':'')+'Essay</h2><div class="eb">'+esc(r.isFull?(S.essay||r.essay1):r.essay)+'</div>'
+  +(r.isFull?'<h2>Task 2 Prompt</h2><div class="pb">'+esc(S.prompt2||r.prompt2)+'</div><h2>'+esc(r.studentName)+'\'s Task 2 Essay</h2><div class="eb">'+esc(S.essay2||r.essay2)+'</div>':'')
+  +'<div class="ft">IELTS Writing Lab — Exam Report • '+r.date+'</div></body></html>';
+  var blob=new Blob(['\ufeff',h],{type:'application/msword'});
+  var url=URL.createObjectURL(blob);
+  var a=document.createElement('a');a.href=url;
+  var dd=String(S.t0.getDate()).padStart(2,'0'),mm=String(S.t0.getMonth()+1).padStart(2,'0'),yy=String(S.t0.getFullYear()).slice(2);
+  a.download=dd+'-'+mm+'-'+yy+'_'+r.className+'_'+r.studentName.replace(/\s+/g,'_')+'_'+r.taskType.replace(' ','')+'_FINAL.doc';
+  document.body.appendChild(a);a.click();document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+/* ═══ SUBMIT TO DRIVE (with auto-retry) ═══ */
+var driveRetryTimer=null,driveRetryCount=0,driveMaxRetries=120;
+var driveData=null;
+
+function submitToDrive(){
+  if(!S.url)return;
+  driveRetryCount=0;
+  var rd=rdata();
+  rd.action='final';
+  rd.fileId=driveFileId||null;
+  driveData=JSON.stringify(rd);
+  attemptDriveSubmit();
+}
+
+function attemptDriveSubmit(){
+  if(!driveData)return;
+  driveRetryCount++;
+  var retryMsg=driveRetryCount>1?' (attempt '+driveRetryCount+')':'';
+  $('subSt').innerHTML='<div class="ss ss-load">⏳ Submitting to teacher...'+retryMsg+'</div>';
+
+  if(!navigator.onLine){
+    scheduleRetry('You appear to be offline');
+    return;
+  }
+
+  fetch(S.url,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain'},body:driveData})
+  .then(function(){
+    $('subSt').innerHTML='<div class="ss ss-ok">✅ Report downloaded & submitted to teacher successfully!</div>';
+    if(driveRetryTimer){clearTimeout(driveRetryTimer);driveRetryTimer=null}
+    driveData=null;
+  })
+  .catch(function(err){
+    scheduleRetry('Network error');
+  });
+}
+
+function scheduleRetry(reason){
+  if(driveRetryCount>=driveMaxRetries){
+    $('subSt').innerHTML='<div class="ss ss-fail">✅ Report downloaded. ❌ Could not submit after '+driveRetryCount+' attempts — please send the .doc file to your teacher manually.</div>';
+    return;
+  }
+  var delay=driveRetryCount<=5?5000:driveRetryCount<=20?10000:15000;
+  var sec=Math.ceil(delay/1000);
+  $('subSt').innerHTML='<div class="ss ss-fail">⚠️ '+reason+' — retrying in '+sec+'s (attempt '+driveRetryCount+')...<br><span style="font-size:12px;opacity:.7">The report will auto-submit once connected.</span></div>';
+  driveRetryTimer=setTimeout(attemptDriveSubmit,delay);
+}
+
+window.addEventListener('online',function(){
+  if(driveData&&driveRetryTimer){
+    clearTimeout(driveRetryTimer);
+    setTimeout(attemptDriveSubmit,1000);
+  }
+});
+
+function exportAndSubmit(){
+  exportDoc();
+  if(S.url){
+    submitToDrive();
+  } else {
+    $('subSt').innerHTML='<div class="ss ss-ok">✅ Report downloaded. Send the .doc file to your teacher via Zalo / Email / Drive.</div>';
+  }
+}
+
+/* ═══ SCREEN WAKE LOCK — prevent screen from turning off ═══ */
+var wakeLock=null;
+
+async function requestWakeLock(){
+  try{
+    if('wakeLock' in navigator){
+      wakeLock=await navigator.wakeLock.request('screen');
+      wakeLock.addEventListener('release',function(){wakeLock=null});
     }
-    
-    // 5. Cache API
-    readCacheAPI().then(function(val) {
-      if (val === TEST_DATA) {
-        results += statusHTML('Cache API', true, 'Data survived! ✓');
-        log('Cache API: READ OK — data survived');
-      } else {
-        results += statusHTML('Cache API', false, 'Empty — data lost');
-        log('Cache API: READ FAIL — empty');
-      }
-      
-      document.getElementById('readResult').innerHTML = results;
-    });
-  });
+  }catch(e){}
 }
 
-// ═══ CLEAR ═══
-function clearAll() {
-  try { localStorage.removeItem(TEST_KEY) } catch(e) {}
-  try { sessionStorage.removeItem(TEST_KEY) } catch(e) {}
-  try {
-    var req = indexedDB.deleteDatabase('ielts_test_db');
-    req.onsuccess = function() { log('IndexedDB: cleared') };
-  } catch(e) {}
-  try {
-    document.cookie = TEST_KEY + '=; max-age=0; path=/';
-  } catch(e) {}
-  try {
-    caches.delete('ielts_test_cache').then(function() { log('Cache API: cleared') });
-  } catch(e) {}
-  log('All storage cleared');
-  document.getElementById('writeResult').innerHTML = '';
-  document.getElementById('readResult').innerHTML = '';
+function releaseWakeLock(){
+  if(wakeLock){try{wakeLock.release()}catch(e){}wakeLock=null}
 }
 
-// ═══ IndexedDB helpers ═══
-function writeIndexedDB() {
-  return new Promise(function(resolve) {
-    try {
-      var req = indexedDB.open('ielts_test_db', 1);
-      req.onupgradeneeded = function(e) {
-        var db = e.target.result;
-        if (!db.objectStoreNames.contains('data')) {
-          db.createObjectStore('data');
-        }
-      };
-      req.onsuccess = function(e) {
-        try {
-          var db = e.target.result;
-          var tx = db.transaction('data', 'readwrite');
-          tx.objectStore('data').put(TEST_DATA, TEST_KEY);
-          tx.oncomplete = function() { resolve(true) };
-          tx.onerror = function() { resolve(false) };
-        } catch(err) { resolve(false) }
-      };
-      req.onerror = function() { resolve(false) };
-    } catch(e) { resolve(false) }
-  });
-}
+document.addEventListener('visibilitychange',function(){
+  if(document.visibilityState==='visible'&&S.run){requestWakeLock()}
+});
 
-function readIndexedDB() {
-  return new Promise(function(resolve) {
-    try {
-      var req = indexedDB.open('ielts_test_db', 1);
-      req.onupgradeneeded = function(e) {
-        var db = e.target.result;
-        if (!db.objectStoreNames.contains('data')) {
-          db.createObjectStore('data');
-        }
-      };
-      req.onsuccess = function(e) {
-        try {
-          var db = e.target.result;
-          var tx = db.transaction('data', 'readonly');
-          var getReq = tx.objectStore('data').get(TEST_KEY);
-          getReq.onsuccess = function() { resolve(getReq.result || null) };
-          getReq.onerror = function() { resolve(null) };
-        } catch(err) { resolve(null) }
-      };
-      req.onerror = function() { resolve(null) };
-    } catch(e) { resolve(null) }
-  });
-}
-
-// ═══ Cache API helpers ═══
-function writeCacheAPI() {
-  return new Promise(function(resolve) {
-    try {
-      if (!('caches' in window)) { resolve(false); return }
-      caches.open('ielts_test_cache').then(function(cache) {
-        var resp = new Response(TEST_DATA);
-        cache.put('/ielts_test_data', resp).then(function() {
-          resolve(true);
-        }).catch(function() { resolve(false) });
-      }).catch(function() { resolve(false) });
-    } catch(e) { resolve(false) }
-  });
-}
-
-function readCacheAPI() {
-  return new Promise(function(resolve) {
-    try {
-      if (!('caches' in window)) { resolve(null); return }
-      caches.open('ielts_test_cache').then(function(cache) {
-        cache.match('/ielts_test_data').then(function(resp) {
-          if (resp) {
-            resp.text().then(function(t) { resolve(t) });
-          } else { resolve(null) }
-        }).catch(function() { resolve(null) });
-      }).catch(function() { resolve(null) });
-    } catch(e) { resolve(null) }
-  });
-}
+requestWakeLock();
 </script>
 </body>
 </html>
