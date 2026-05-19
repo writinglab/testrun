@@ -1257,6 +1257,16 @@ window.addEventListener('beforeunload',function(e){
   }
 });
 
+/* Also set onbeforeunload directly for broader mobile compatibility */
+window.onbeforeunload=function(e){
+  if(S.run){
+    var msg='Your exam is still in progress! Are you sure you want to leave?';
+    e=e||window.event;
+    if(e)e.returnValue=msg;
+    return msg;
+  }
+};
+
 /* pagehide fires more reliably on mobile Safari */
 window.addEventListener('pagehide',function(e){
   if(S.run){
