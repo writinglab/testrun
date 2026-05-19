@@ -504,7 +504,6 @@ var AUTOSAVE_KEY='ielts_writing_lab_session';
 var AUTOSAVE_SUBMITTED_KEY='ielts_writing_lab_submitted';
 var autosaveInterval=null;
 var AUTOSAVE_MS=5000; /* save every 5 seconds */
-var driveFileId=null; /* Google Doc file ID — set after create */
 
 function $(id){return document.getElementById(id)}
 function D(id,v){$(id).classList.toggle('hidden',!v)}
@@ -594,7 +593,7 @@ function persistDelete(key){
   try{localStorage.removeItem(AUTOSAVE_KEY)}catch(e){}
 }
 
-/* Small single-value persist (for driveFileId, submitted flag) */
+/* Small single-value persist (for submitted flag etc.) */
 function persistSetSmall(name,val){
   try{setCookie(COOKIE_PREFIX+name,val,COOKIE_DAYS)}catch(e){}
   try{localStorage.setItem(name,val)}catch(e){}
@@ -695,72 +694,10 @@ function startAutosave(){
     showAutosaveStatus('saving');
     autosaveState();
   },AUTOSAVE_MS);
-  /* Also start draft sync to Drive */
-  startDraftSync();
 }
 
 function stopAutosave(){
   if(autosaveInterval){clearInterval(autosaveInterval);autosaveInterval=null}
-  stopDraftSync();
-}
-
-/* ═══════════════════════════════════════════
-   DRAFT SYNC TO DRIVE
-   One-time snapshot at a fixed minute mark:
-   Task 1 → minute 15 | Task 2 → minute 35 | Full → minute 55
-   ═══════════════════════════════════════════ */
-var draftSyncDone=false;
-var DRAFT_SYNC_MINUTE={task1:2,task2:2,full:2};
-
-function startDraftSync(){ draftSyncDone=false; }
-function stopDraftSync(){}
-
-function checkDraftSync(){
-  if(draftSyncDone||!S.run||!S.url||!driveFileId)return;
-  var elapsed=Math.floor((S.total-S.tl)/60); /* minutes spent */
-  var target=DRAFT_SYNC_MINUTE[S.task];
-  if(typeof target==='undefined'||elapsed<target)return;
-  draftSyncDone=true;
-  syncDraftToDrive();
-}
-
-function syncDraftToDrive(){
-  if(!S.run||!S.url||!driveFileId)return;
-  /* Sync textarea values */
-  var ta1=$('essayTA'),ta2=$('essayTA2');
-  if(ta1)S.essay=ta1.value||S.essay;
-  if(ta2&&ta2.style.display!=='none')S.essay2=ta2.value||S.essay2;
-
-  var tk=TK[S.task],isFull=S.task==='full';
-  var payload={
-    action:'update',
-    fileId:driveFileId,
-    studentName:S.name,
-    className:S.cls,
-    taskType:tk.l,
-    date:S.t0?S.t0.toLocaleDateString('en-GB'):'',
-    time:S.t0?S.t0.toLocaleTimeString('en-GB'):'',
-    timeLeft:fmt(S.tl),
-    timeSpent:fmt(S.total-S.tl),
-    wordCount1:wc(S.essay),
-    wordCount2:isFull?wc(S.essay2):0,
-    violations:vioNum,
-    essay1:S.essay||'(No content)',
-    essay2:isFull?(S.essay2||'(No content)'):'',
-    prompt1:S.prompt||'',
-    prompt2:isFull?(S.prompt2||''):'',
-    savedAt:new Date().toISOString()
-  };
-
-  /* Use sendBeacon — fire and forget, won't block UI */
-  try{
-    navigator.sendBeacon(S.url,JSON.stringify(payload));
-    showAutosaveStatus('saved');
-  }catch(e){
-    try{
-      fetch(S.url,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain'},body:JSON.stringify(payload)});
-    }catch(e2){}
-  }
 }
 
 /* ═══ RECOVERY — check on page load ═══ */
@@ -792,8 +729,7 @@ function recoverSession(){
   vioNum=saved.vioNum||0;
   activeTab=saved.activeTab||1;
   S.url=SUBMIT_URL;S.run=true;
-  /* Restore driveFileId if available */
-  try{driveFileId=persistGetSmall('ielts_drive_file_id')||null}catch(e){}
+
 
   /* If time already expired, submit immediately */
   if(S.tl<=0){
@@ -846,7 +782,7 @@ function recoverSession(){
   S.vio.push({time:new Date(),t:'returned',n:0,l:'Session recovered at '+ts(new Date())});
 
   updClock();updWC();
-  S.ti=setInterval(function(){S.tl--;updClock();checkDraftSync();if(S.tl<=0)doSubmit()},1000);
+  S.ti=setInterval(function(){S.tl--;updClock();if(S.tl<=0)doSubmit()},1000);
   S.si=setInterval(snap,30000);
   startAutosave();
   requestWakeLock();
@@ -1010,33 +946,6 @@ function switchTab(n){
 /* ═══════════════════════════════════════════
    CREATE FILE ON DRIVE — called at exam start
    ═══════════════════════════════════════════ */
-function createDriveFile(){
-  if(!S.url)return;
-  var tk=TK[S.task];
-  var dd=String(S.t0.getDate()).padStart(2,'0'),mm=String(S.t0.getMonth()+1).padStart(2,'0'),yy=String(S.t0.getFullYear()).slice(2);
-  var payload={
-    action:'create',
-    studentName:S.name,
-    className:S.cls,
-    taskType:tk.l,
-    shortDate:dd+'-'+mm+'-'+yy,
-    date:S.t0.toLocaleDateString('en-GB'),
-    time:S.t0.toLocaleTimeString('en-GB')
-  };
-  fetch(S.url,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify(payload)})
-  .then(function(r){return r.json()})
-  .then(function(resp){
-    if(resp.fileId){
-      driveFileId=resp.fileId;
-      /* Save fileId for recovery */
-      try{persistSetSmall('ielts_drive_file_id',driveFileId)}catch(e){}
-    }
-  })
-  .catch(function(err){
-    /* If create fails (e.g. offline), will fallback to legacy submit later */
-    console.log('Drive create failed, will use legacy submit:',err);
-  });
-}
 
 /* ═══ START ═══ */
 function go(){
@@ -1121,10 +1030,10 @@ function go(){
   }
 
   updClock();updWC();snap();
-  S.ti=setInterval(function(){S.tl--;updClock();checkDraftSync();if(S.tl<=0)doSubmit()},1000);
+  S.ti=setInterval(function(){S.tl--;updClock();if(S.tl<=0)doSubmit()},1000);
   S.si=setInterval(snap,30000);
   startAutosave(); /* ← Start autosave */
-  createDriveFile(); /* ← Create file on Drive */
+
   setTimeout(function(){$('essayTA').focus()},200);
 
   $('essayTA').oninput=function(){S.essay=this.value;updWC()};
@@ -1211,7 +1120,6 @@ function doSubmit(){
   window.removeEventListener('blur',onBlur);
   /* Mark as submitted so recovery won't re-trigger */
   try{persistSetSmall(AUTOSAVE_SUBMITTED_KEY,JSON.stringify({t0:S.t0?S.t0.toISOString():''}))}catch(e){}
-  try{persistDeleteSmall('ielts_drive_file_id')}catch(e){}
   clearAutosave();
   review();
   setTimeout(function(){exportAndSubmit()},500);
@@ -1238,7 +1146,6 @@ function emergencySubmit(){
     S.run=false;
     var rd=rdata();
     rd.action='final';
-    rd.fileId=driveFileId||null;
     var payload=JSON.stringify(rd);
     S.run=wasRunning;
     try{
@@ -1256,16 +1163,6 @@ window.addEventListener('beforeunload',function(e){
     return e.returnValue;
   }
 });
-
-/* Also set onbeforeunload directly for broader mobile compatibility */
-window.onbeforeunload=function(e){
-  if(S.run){
-    var msg='Your exam is still in progress! Are you sure you want to leave?';
-    e=e||window.event;
-    if(e)e.returnValue=msg;
-    return msg;
-  }
-};
 
 /* pagehide fires more reliably on mobile Safari */
 window.addEventListener('pagehide',function(e){
@@ -1453,7 +1350,6 @@ function submitToDrive(){
   driveRetryCount=0;
   var rd=rdata();
   rd.action='final';
-  rd.fileId=driveFileId||null;
   driveData=JSON.stringify(rd);
   attemptDriveSubmit();
 }
